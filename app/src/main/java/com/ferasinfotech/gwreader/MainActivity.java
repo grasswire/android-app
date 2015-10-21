@@ -37,7 +37,6 @@ import org.json.JSONObject;
 public class MainActivity extends FragmentActivity {
 
     private static final String TAG_STORIES = "stories";
-    private static final String TAG_NAME = "name";
 
     /**
      * The number of pages (wizard steps) to show in this demo.
@@ -54,6 +53,9 @@ public class MainActivity extends FragmentActivity {
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private PagerAdapter mPagerAdapter;
+
+    // stories JSONArray
+    JSONArray stories = null;
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
     @Override
@@ -87,11 +89,6 @@ public class MainActivity extends FragmentActivity {
     /* Invoked upon reception of JSON data from GrassWire API - creates slideable story page fragments, 1 per story */
     private void build_screens(String json_str) {
 
-        // stories JSONArray
-        JSONArray stories = null;
-
-        Toast.makeText(getApplicationContext(), "json lenght:" + json_str.length(), Toast.LENGTH_LONG).show();
-
         if (json_str != null) {
             try {
                 JSONObject jsonObj = new JSONObject(json_str);
@@ -99,11 +96,8 @@ public class MainActivity extends FragmentActivity {
                 // Getting JSON Array node
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
-                JSONObject s = stories.getJSONObject(0);
-                String name = s.getString(TAG_NAME);
-
                 num_pages = stories.length();
-                //Toast.makeText(getApplicationContext(), "StoryCount:" + num_pages + " name 0:" + name, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "json length:" + json_str.length() + " StoryCount:" + num_pages, Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
@@ -139,7 +133,12 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return ScreenSlidePageFragment.create(position);
+            try {
+                return ScreenSlidePageFragment.create(position, stories.getJSONObject(position));
+            }
+            catch  (JSONException e) {
+                return ScreenSlidePageFragment.create(position, "JSON parsing problem");
+            }
         }
 
         @Override
