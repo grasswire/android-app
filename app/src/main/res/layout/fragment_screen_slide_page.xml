@@ -25,7 +25,16 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView android:id="@android:id/text1"
+        <TextView android:id="@id/story_title"
+            style="?android:textAppearanceMedium"
+            android:textStyle="bold"
+            android:background="@color/title_background_color"
+            android:textColor="@color/title_foreground_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+        <TextView android:id="@id/story_headline"
             style="?android:textAppearanceLarge"
             android:textStyle="bold"
             android:layout_width="match_parent"
@@ -33,10 +42,11 @@
             android:layout_marginBottom="16dp" />
 
         <TextView style="?android:textAppearanceMedium"
+            android:id="@id/story_summary"
             android:lineSpacingMultiplier="1.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lorem_ipsum" />
+            android:text="@string/page_filler" />
 
     </LinearLayout>
 

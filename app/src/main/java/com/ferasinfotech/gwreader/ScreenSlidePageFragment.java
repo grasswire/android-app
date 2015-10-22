@@ -38,8 +38,12 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      */
     public static final String ARG_PAGE = "page";
     public static final String ARG_TITLE = "title";
+    public static final String ARG_HEADLINE = "headline";
+    public static final String ARG_SUMMARY = "summary";
 
     private static final String TAG_NAME = "name";
+    private static final String TAG_SUMMARY = "summary";
+    private static final String TAG_HEADLINE = "headline";
 
     /**
      * The fragment's page number, which is set to the argument value for {@link #ARG_PAGE}.
@@ -52,15 +56,29 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mTitle;
 
     /**
+     * The fragments article summary, which is set to the argument value for {@link #ARG_SUMMARY}
+     */
+    private String mSummary;
+
+    /**
+     * The fragments article headline, which is set to the argument value for {@link #ARG_HEADLINE}
+     */
+    private String mHeadline;
+
+    /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
     public static ScreenSlidePageFragment create(int pageNumber, JSONObject story) {
         String name = "";
+        String summary = "";
+        String headline = "";
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
         try {
             name = story.getString(TAG_NAME);
+            summary = story.getString(TAG_SUMMARY);
+            headline = story.getString(TAG_HEADLINE);
         }
         catch  (JSONException e) {
             name = "Unknown";
@@ -68,6 +86,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         args.putInt(ARG_PAGE, pageNumber);
         args.putString(ARG_TITLE, name);
+        args.putString(ARG_SUMMARY, summary);
+        args.putString(ARG_HEADLINE, headline);
         fragment.setArguments(args);
         return fragment;
     }
@@ -82,6 +102,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, pageNumber);
         args.putString(ARG_TITLE, story_title + "(" + pageNumber + ")");
+        args.putString(ARG_SUMMARY, "");
+        args.putString(ARG_HEADLINE, "");
         fragment.setArguments(args);
         return fragment;
     }
@@ -93,7 +115,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPageNumber = getArguments().getInt(ARG_PAGE);
-        mTitle = getArguments().getString(ARG_TITLE);
+        mTitle = " " + getArguments().getString(ARG_TITLE) + " ";
+        mSummary = getArguments().getString(ARG_SUMMARY);
+        mHeadline = getArguments().getString(ARG_HEADLINE);
     }
 
 
@@ -105,7 +129,13 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
         // Set the title view to show the article title.
-        ((TextView) rootView.findViewById(android.R.id.text1)).setText(mTitle);
+        ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
+
+        // Set the headline view to show the article headline.
+        ((TextView) rootView.findViewById(R.id.story_headline)).setText(mHeadline);
+
+        // Set the summary view to show the article title.
+        ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
         Log.d("Building page: ", " " + mPageNumber);
 

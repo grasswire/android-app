@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,6 +63,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
+        Toast.makeText(getApplicationContext(), "App launched, splash screen displayed", Toast.LENGTH_SHORT).show();
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
 
@@ -97,7 +99,7 @@ public class MainActivity extends FragmentActivity {
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
                 num_pages = stories.length();
-                Toast.makeText(getApplicationContext(), "json length:" + json_str.length() + " StoryCount:" + num_pages, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "json length:" + json_str.length() + " StoryCount:" + num_pages, Toast.LENGTH_SHORT).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
@@ -164,6 +166,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(String json_result) {
+            Toast.makeText(getApplicationContext(), "Starting to build screens from JSON data", Toast.LENGTH_SHORT).show();
             build_screens(json_result);
         }
 
@@ -172,21 +175,17 @@ public class MainActivity extends FragmentActivity {
     /** Initiates the fetch operation. */
     private String loadFromNetwork(String urlString) throws IOException {
         InputStream stream = null;
-        String str = " ";
-        String complete_str = "";
+        String str = "";
 
         try {
             stream = downloadUrl(urlString);
-            while (str.length() > 0) {
-                str = readIt(stream, 500000);
-                complete_str = complete_str + str;
-            }
+            str = readIt(stream);
         } finally {
             if (stream != null) {
                 stream.close();
             }
         }
-        return complete_str;
+        return str;
     }
 
     /**
@@ -215,21 +214,19 @@ public class MainActivity extends FragmentActivity {
 
     /** Reads an InputStream and converts it to a String.
      * @param stream InputStream containing HTML from targeted site.
-     * @param len Length of string that this method returns.
      * @return String concatenated according to len parameter.
      * @throws java.io.IOException
      * @throws java.io.UnsupportedEncodingException
      */
-    private String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        int bytes_read;
+    private String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+        char[] buffer = new char[1000];
+        StringBuilder s = new StringBuilder();
+        int bytes_read = 0;
         Reader reader = null;
         reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        bytes_read = reader.read(buffer);
-        if (bytes_read >= 0) {
-            return new String(buffer);
-        } else {
-            return new String("");
+        while ((bytes_read = reader.read(buffer)) >= 0) {
+            s.append(new String(buffer, 0, bytes_read));
         }
+        return s.toString();
     }
 }
