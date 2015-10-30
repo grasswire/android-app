@@ -16,10 +16,20 @@
 
 package com.ferasinfotech.gwreader;
 
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import android.util.Log;
@@ -40,10 +50,12 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_TITLE = "title";
     public static final String ARG_HEADLINE = "headline";
     public static final String ARG_SUMMARY = "summary";
+    public static final String ARG_COVER_PHOTO = "coverPhoto";
 
     private static final String TAG_NAME = "name";
     private static final String TAG_SUMMARY = "summary";
     private static final String TAG_HEADLINE = "headline";
+    private static final String TAG_COVER_PHOTO = "coverPhoto";
 
     /**
      * The fragment's page number, which is set to the argument value for {@link #ARG_PAGE}.
@@ -66,12 +78,24 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mHeadline;
 
     /**
+     * The fragment's LinearLayout, saved so the async task can set it's background after fetching
+     * the image.
+     */
+    private LinearLayout lLay;
+
+    /**
+     * The fragment's URL for the cover photo, which is set to the argument value for {@link #ARG_COVER_PHOTO}
+     */
+    private String mCoverPhoto;
+
+    /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, JSONObject story) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject story) {
         String name = "";
         String summary = "";
         String headline = "";
+        String cover_photo_url = "";
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
@@ -79,15 +103,17 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             name = story.getString(TAG_NAME);
             summary = story.getString(TAG_SUMMARY);
             headline = story.getString(TAG_HEADLINE);
+            cover_photo_url = story.getString(TAG_COVER_PHOTO);
         }
         catch  (JSONException e) {
             name = "Unknown";
         }
 
         args.putInt(ARG_PAGE, pageNumber);
-        args.putString(ARG_TITLE, name);
+        args.putString(ARG_TITLE, name + " (" + (pageNumber + 1) + "/" + numPages + ")");
         args.putString(ARG_SUMMARY, summary);
         args.putString(ARG_HEADLINE, headline);
+        args.putString(ARG_COVER_PHOTO, cover_photo_url);
         fragment.setArguments(args);
         return fragment;
     }
@@ -96,14 +122,15 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      *  with page title given as a string parameter without a JSON object containing details.
      *  (used to construct and empty page when a JSON parsing error of a story occurs)
      */
-    public static ScreenSlidePageFragment create(int pageNumber, String story_title) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, String story_title) {
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, pageNumber);
-        args.putString(ARG_TITLE, story_title + "(" + pageNumber + ")");
+        args.putString(ARG_TITLE, story_title + " (" + (pageNumber + 1) + "/" + numPages + ")");
         args.putString(ARG_SUMMARY, "");
         args.putString(ARG_HEADLINE, "");
+        args.putString(ARG_COVER_PHOTO, "");
         fragment.setArguments(args);
         return fragment;
     }
@@ -118,6 +145,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mTitle = " " + getArguments().getString(ARG_TITLE) + " ";
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
+        mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
     }
 
 
@@ -127,6 +155,10 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         // Inflate the layout containing a title and body text.
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
+
+        // Get the linear layout and then start the background task to fetch an image for it
+        lLay = ((LinearLayout) rootView.findViewById(R.id.story_layout));
+        new LoadBackground(mCoverPhoto, "androidfigure").execute();
 
         // Set the title view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
@@ -147,5 +179,48 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      */
     public int getPageNumber() {
         return mPageNumber;
+    }
+
+    private class LoadBackground extends AsyncTask<String, Void, Drawable> {
+
+        private String imageUrl , imageName;
+
+        public LoadBackground(String url, String file_name) {
+            this.imageUrl = url;
+            this.imageName = file_name;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Drawable doInBackground(String... urls) {
+
+            try {
+                InputStream is = (InputStream) this.fetch(this.imageUrl);
+                Drawable d = Drawable.createFromStream(is, this.imageName);
+                return d;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        private Object fetch(String address) throws MalformedURLException,IOException {
+            URL url = new URL(address);
+            Object content = url.getContent();
+            return content;
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        protected void onPostExecute(Drawable result) {
+            super.onPostExecute(result);
+            lLay.setBackgroundDrawable(result);
+        }
     }
 }

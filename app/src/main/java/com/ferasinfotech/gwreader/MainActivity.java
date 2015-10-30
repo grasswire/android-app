@@ -24,6 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 /**
  * Demonstrates a "screen-slide" animation using a {@link ViewPager}. Because {@link ViewPager}
  * automatically plays such an animation when calling {@link ViewPager#setCurrentItem(int)}, there
@@ -38,6 +42,7 @@ import org.json.JSONObject;
 public class MainActivity extends FragmentActivity {
 
     private static final String TAG_STORIES = "stories";
+    private static final String TAG_CREATEDAT = "createdAt";
 
     /**
      * The number of pages (wizard steps) to show in this demo.
@@ -63,7 +68,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-        Toast.makeText(getApplicationContext(), "App launched, splash screen displayed", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "App launched, splash screen displayed", Toast.LENGTH_SHORT).show();
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
 
@@ -88,18 +93,37 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    /**
+     * Return date in specified format.
+     * @param milliSeconds Date in milliseconds
+     * @param dateFormat Date format
+     * @return String representing date in specified format
+     */
+    public static String getDate(long milliSeconds, String dateFormat)
+    {
+        // Create a DateFormatter object for displaying date in specified format.
+        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        return formatter.format(calendar.getTime());
+    }
+
     /* Invoked upon reception of JSON data from GrassWire API - creates slideable story page fragments, 1 per story */
     private void build_screens(String json_str) {
 
         if (json_str != null) {
             try {
                 JSONObject jsonObj = new JSONObject(json_str);
+                long createdAt = jsonObj.getLong(TAG_CREATEDAT);
 
                 // Getting JSON Array node
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
                 num_pages = stories.length();
-                Toast.makeText(getApplicationContext(), "json length:" + json_str.length() + " StoryCount:" + num_pages, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
+                        Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
@@ -136,10 +160,10 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, stories.getJSONObject(position));
+                return ScreenSlidePageFragment.create(position, num_pages, stories.getJSONObject(position));
             }
             catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, "JSON parsing problem");
+                return ScreenSlidePageFragment.create(position, num_pages, "JSON parsing problem");
             }
         }
 
@@ -166,7 +190,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(String json_result) {
-            Toast.makeText(getApplicationContext(), "Starting to build screens from JSON data", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Starting to build screens from JSON data", Toast.LENGTH_SHORT).show();
             build_screens(json_result);
         }
 

@@ -24,15 +24,21 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
+        
+        <LinearLayout android:id="@id/story_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView android:id="@id/story_title"
-            style="?android:textAppearanceMedium"
-            android:textStyle="bold"
-            android:background="@color/title_background_color"
-            android:textColor="@color/title_foreground_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            <TextView android:id="@id/story_title"
+                style="?android:textAppearanceMedium"
+                android:textStyle="bold"
+                android:background="@color/title_background_color"
+                android:textColor="@color/title_foreground_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
 
         <TextView android:id="@id/story_headline"
             style="?android:textAppearanceLarge"
@@ -48,6 +54,10 @@
             android:layout_height="wrap_content"
             android:text="@string/page_filler" />
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </ListView>
     </LinearLayout>
 
 </ScrollView>
