@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import android.util.Log;
@@ -81,7 +82,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      * The fragment's LinearLayout, saved so the async task can set it's background after fetching
      * the image.
      */
-    private LinearLayout lLay;
+    private RelativeLayout lay;
 
     /**
      * The fragment's URL for the cover photo, which is set to the argument value for {@link #ARG_COVER_PHOTO}
@@ -157,7 +158,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
         // Get the linear layout and then start the background task to fetch an image for it
-        lLay = ((LinearLayout) rootView.findViewById(R.id.story_layout));
+        lay = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
         new LoadBackground(mCoverPhoto, "androidfigure").execute();
 
         // Set the title view to show the article title.
@@ -220,7 +221,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Drawable result) {
             super.onPostExecute(result);
-            lLay.setBackgroundDrawable(result);
+            lay.setBackgroundDrawable(result);
         }
     }
 }

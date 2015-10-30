@@ -24,10 +24,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        
-        <LinearLayout android:id="@id/story_layout"
+
+        <RelativeLayout android:id="@id/story_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="480dp">
 
             <TextView android:id="@id/story_title"
                 style="?android:textAppearanceMedium"
@@ -36,16 +36,17 @@
                 android:textColor="@color/title_foreground_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_marginBottom="16dp" />
 
-        </LinearLayout>
-
-        <TextView android:id="@id/story_headline"
-            style="?android:textAppearanceLarge"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            <TextView android:id="@id/story_headline"
+                style="?android:textAppearanceLarge"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp" />
+        </RelativeLayout>
 
         <TextView style="?android:textAppearanceMedium"
             android:id="@id/story_summary"
