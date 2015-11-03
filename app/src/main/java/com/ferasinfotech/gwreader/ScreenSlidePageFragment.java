@@ -29,9 +29,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import android.view.ViewGroup.LayoutParams;
 
 import android.util.Log;
 
@@ -52,6 +53,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_HEADLINE = "headline";
     public static final String ARG_SUMMARY = "summary";
     public static final String ARG_COVER_PHOTO = "coverPhoto";
+    public static final String ARG_COVER_PHOTO_SIZE = "coverPhotoSize";
 
     private static final String TAG_NAME = "name";
     private static final String TAG_SUMMARY = "summary";
@@ -90,9 +92,14 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mCoverPhoto;
 
     /**
+     * The size of the cover photo relative layout, which is set to the argument value for {@link #ARG_COVER_PHOTO_SIZE}
+     */
+    private int mCoverPhotoSize;
+
+    /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject story) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, int cover_photo_size, JSONObject story) {
         String name = "";
         String summary = "";
         String headline = "";
@@ -115,6 +122,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, summary);
         args.putString(ARG_HEADLINE, headline);
         args.putString(ARG_COVER_PHOTO, cover_photo_url);
+        args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
         fragment.setArguments(args);
         return fragment;
     }
@@ -123,7 +131,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      *  with page title given as a string parameter without a JSON object containing details.
      *  (used to construct and empty page when a JSON parsing error of a story occurs)
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages, String story_title) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, int cover_photo_size, String story_title) {
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
@@ -132,6 +140,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, "");
         args.putString(ARG_HEADLINE, "");
         args.putString(ARG_COVER_PHOTO, "");
+        args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
         fragment.setArguments(args);
         return fragment;
     }
@@ -147,6 +156,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
         mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
+        mCoverPhotoSize = getArguments().getInt(ARG_COVER_PHOTO_SIZE);
     }
 
 
@@ -159,6 +169,10 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         // Get the linear layout and then start the background task to fetch an image for it
         lay = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
+        LayoutParams params = lay.getLayoutParams();
+// Changes the height and width to the specified *pixels*
+        params.height = mCoverPhotoSize;
+
         new LoadBackground(mCoverPhoto, "androidfigure").execute();
 
         // Set the title view to show the article title.

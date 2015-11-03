@@ -11,22 +11,22 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
+import android.util.DisplayMetrics;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Demonstrates a "screen-slide" animation using a {@link ViewPager}. Because {@link ViewPager}
@@ -56,18 +56,24 @@ public class MainActivity extends FragmentActivity {
     private ViewPager mPager;
 
     /**
-     * The pager adapter, which provides the pages to the view pager widget.
+     * Size of the cover photo in pixel
      */
-    private PagerAdapter mPagerAdapter;
+    private int cover_photo_size;
 
     // stories JSONArray
     JSONArray stories = null;
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        cover_photo_size = metrics.heightPixels / 2;
+
         //Toast.makeText(getApplicationContext(), "App launched, splash screen displayed", Toast.LENGTH_SHORT).show();
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
@@ -75,7 +81,7 @@ public class MainActivity extends FragmentActivity {
     /** Shuts down the app on the pause event */
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
+        //  Auto-generated method stub
         super.onPause();
         finish();
     }
@@ -102,7 +108,7 @@ public class MainActivity extends FragmentActivity {
     public static String getDate(long milliSeconds, String dateFormat)
     {
         // Create a DateFormatter object for displaying date in specified format.
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
 
         // Create a calendar object that will convert the date and time value in milliseconds to date.
         Calendar calendar = Calendar.getInstance();
@@ -111,7 +117,11 @@ public class MainActivity extends FragmentActivity {
     }
 
     /* Invoked upon reception of JSON data from GrassWire API - creates slideable story page fragments, 1 per story */
-    private void build_screens(String json_str) {
+    private void build_screens(String json_str)
+    {
+        PagerAdapter mPagerAdapter;
+
+        //Toast.makeText(getApplicationContext(), "density:" + logicalDensity, Toast.LENGTH_LONG).show();
 
         if (json_str != null) {
             try {
@@ -122,8 +132,9 @@ public class MainActivity extends FragmentActivity {
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
                 num_pages = stories.length();
-                Toast.makeText(getApplicationContext(), "created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
-                        Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
+                //        Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "cover size:" + cover_photo_size, Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
@@ -160,10 +171,10 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, num_pages, stories.getJSONObject(position));
+                return ScreenSlidePageFragment.create(position, num_pages, cover_photo_size, stories.getJSONObject(position));
             }
             catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, num_pages, "JSON parsing problem");
+                return ScreenSlidePageFragment.create(position, num_pages, cover_photo_size, "JSON parsing problem");
             }
         }
 
@@ -231,8 +242,7 @@ public class MainActivity extends FragmentActivity {
         conn.setDoInput(true);
         // Start the query
         conn.connect();
-        InputStream stream = conn.getInputStream();
-        return stream;
+        return conn.getInputStream();
         // END_INCLUDE(get_inputstream)
     }
 
@@ -242,12 +252,11 @@ public class MainActivity extends FragmentActivity {
      * @throws java.io.IOException
      * @throws java.io.UnsupportedEncodingException
      */
-    private String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+    private String readIt(InputStream stream) throws IOException {
         char[] buffer = new char[1000];
         StringBuilder s = new StringBuilder();
-        int bytes_read = 0;
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
+        int bytes_read;
+        Reader reader = new InputStreamReader(stream, "UTF-8");
         while ((bytes_read = reader.read(buffer)) >= 0) {
             s.append(new String(buffer, 0, bytes_read));
         }

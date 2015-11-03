@@ -27,7 +27,7 @@
 
         <RelativeLayout android:id="@id/story_layout"
             android:layout_width="match_parent"
-            android:layout_height="480dp">
+            android:layout_height="10dp">
 
             <TextView android:id="@id/story_title"
                 style="?android:textAppearanceMedium"
@@ -42,6 +42,7 @@
             <TextView android:id="@id/story_headline"
                 style="?android:textAppearanceLarge"
                 android:textStyle="bold"
+                android:textColor="@color/title_foreground_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
