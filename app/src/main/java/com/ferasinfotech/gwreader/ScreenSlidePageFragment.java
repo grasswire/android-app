@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -36,8 +37,11 @@ import android.view.ViewGroup.LayoutParams;
 
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single step in a wizard. The fragment shows a dummy title indicating
@@ -59,6 +63,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private static final String TAG_SUMMARY = "summary";
     private static final String TAG_HEADLINE = "headline";
     private static final String TAG_COVER_PHOTO = "coverPhoto";
+    private static final String TAG_LINKS = "links";
 
     /**
      * The fragment's page number, which is set to the argument value for {@link #ARG_PAGE}.
@@ -105,6 +110,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         String headline = "";
         String cover_photo_url = "";
 
+        // links JSONArray
+        JSONArray links = null;
+
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
         try {
@@ -112,6 +120,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             summary = story.getString(TAG_SUMMARY);
             headline = story.getString(TAG_HEADLINE);
             cover_photo_url = story.getString(TAG_COVER_PHOTO);
+            links = story.getJSONArray(TAG_LINKS);
+            Log.d("Number of links", "********* for " + name + ":" + links.length());
         }
         catch  (JSONException e) {
             name = "Unknown";
@@ -170,10 +180,18 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         // Get the linear layout and then start the background task to fetch an image for it
         lay = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
         LayoutParams params = lay.getLayoutParams();
-// Changes the height and width to the specified *pixels*
         params.height = mCoverPhotoSize;
 
-        new LoadBackground(mCoverPhoto, "androidfigure").execute();
+// Changes the height and width to the specified *pixels*
+
+        ImageView im_view = ((ImageView) rootView.findViewById(R.id.story_image));
+
+        //LayoutParams params = im_view.getLayoutParams();
+        //params.height = mCoverPhotoSize;
+
+        Picasso.with(getContext()).load(mCoverPhoto).into(im_view);
+
+        //new LoadBackground(mCoverPhoto, "androidfigure").execute();
 
         // Set the title view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
@@ -184,7 +202,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         // Set the summary view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
-        Log.d("Building page: ", " " + mPageNumber);
+        //Log.d("Building page", "********* " + mPageNumber);
 
         return rootView;
     }
@@ -195,7 +213,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public int getPageNumber() {
         return mPageNumber;
     }
-
+/*
     private class LoadBackground extends AsyncTask<String, Void, Drawable> {
 
         private String imageUrl , imageName;
@@ -238,4 +256,5 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             lay.setBackgroundDrawable(result);
         }
     }
+    */
 }

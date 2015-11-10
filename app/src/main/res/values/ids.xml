@@ -19,4 +19,6 @@
     <item type="id" name="story_title" />
     <item type="id" name="story_summary" />
     <item type="id" name="story_headline" />
+    <item type="id" name="story_list" />
+    <item type="id" name="story_image" />
 </resources>
