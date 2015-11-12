@@ -16,20 +16,16 @@
 
 package com.ferasinfotech.gwreader;
 
+import android.widget.FrameLayout;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.net.URL;
-import java.net.MalformedURLException;
+import com.squareup.picasso.Target;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,7 +38,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.squareup.picasso.Picasso;
-
+import com.squareup.picasso.Picasso.LoadedFrom;
 /**
  * A fragment representing a single step in a wizard. The fragment shows a dummy title indicating
  * the page number, along with some dummy text.
@@ -102,6 +98,28 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private int mCoverPhotoSize;
 
     /**
+     * Target object for caching of Picasso
+     */
+    private Target picassoTarget = new Target(){
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
+            lay.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
+            //Log.d("Picasso Image:", "Render Complete:" + mCoverPhoto);
+        }
+
+        @Override
+        public void onBitmapFailed(final Drawable errorDrawable) {
+            Log.d("Picasso Image:", "Load FAILED:" + mCoverPhoto);
+        }
+
+        @Override
+        public void onPrepareLoad(final Drawable placeHolderDrawable) {
+            //Log.d("Picasso Image Load:", "Prepare Load:" + mCoverPhoto);
+        }
+    };
+
+    /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
     public static ScreenSlidePageFragment create(int pageNumber, int numPages, int cover_photo_size, JSONObject story) {
@@ -121,7 +139,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             headline = story.getString(TAG_HEADLINE);
             cover_photo_url = story.getString(TAG_COVER_PHOTO);
             links = story.getJSONArray(TAG_LINKS);
-            Log.d("Number of links", "********* for " + name + ":" + links.length());
+            //Log.d("Number of links", "********* for " + name + ":" + links.length());
         }
         catch  (JSONException e) {
             name = "Unknown";
@@ -182,16 +200,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         LayoutParams params = lay.getLayoutParams();
         params.height = mCoverPhotoSize;
 
-// Changes the height and width to the specified *pixels*
-
-        ImageView im_view = ((ImageView) rootView.findViewById(R.id.story_image));
-
-        //LayoutParams params = im_view.getLayoutParams();
-        //params.height = mCoverPhotoSize;
-
-        Picasso.with(getContext()).load(mCoverPhoto).into(im_view);
-
-        //new LoadBackground(mCoverPhoto, "androidfigure").execute();
+        //Picasso.with(getActivity()).setLoggingEnabled(true);
+        //Picasso.with(getActivity()).setIndicatorsEnabled(true);
+        Picasso.with(getActivity()).load(mCoverPhoto).into(picassoTarget);
 
         // Set the title view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
@@ -213,48 +224,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public int getPageNumber() {
         return mPageNumber;
     }
-/*
-    private class LoadBackground extends AsyncTask<String, Void, Drawable> {
-
-        private String imageUrl , imageName;
-
-        public LoadBackground(String url, String file_name) {
-            this.imageUrl = url;
-            this.imageName = file_name;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Drawable doInBackground(String... urls) {
-
-            try {
-                InputStream is = (InputStream) this.fetch(this.imageUrl);
-                Drawable d = Drawable.createFromStream(is, this.imageName);
-                return d;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        private Object fetch(String address) throws MalformedURLException,IOException {
-            URL url = new URL(address);
-            Object content = url.getContent();
-            return content;
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void onPostExecute(Drawable result) {
-            super.onPostExecute(result);
-            lay.setBackgroundDrawable(result);
-        }
-    }
-    */
 }
+
+
