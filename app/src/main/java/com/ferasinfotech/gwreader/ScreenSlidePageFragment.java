@@ -29,6 +29,9 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 import android.view.ViewGroup.LayoutParams;
 
 import android.util.Log;
@@ -96,6 +99,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      * The size of the cover photo relative layout, which is set to the argument value for {@link #ARG_COVER_PHOTO_SIZE}
      */
     private int mCoverPhotoSize;
+
+    private String[] items = new String[] {"Dog", "Cat", "Kangaroo", "Koala"};
 
     /**
      * Target object for caching of Picasso
@@ -214,6 +219,11 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
         //Log.d("Building page", "********* " + mPageNumber);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, items);
+        ListView lv = (ListView) rootView.findViewById(android.R.id.list);
+        lv.setAdapter(adapter);
+        Utility.setListViewHeightBasedOnChildren(lv);
 
         return rootView;
     }

@@ -132,8 +132,8 @@ public class MainActivity extends FragmentActivity {
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
                 num_pages = stories.length();
-                //Toast.makeText(getApplicationContext(), "created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
-                //        Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Digest created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
+                        Toast.LENGTH_LONG).show();
                 //Toast.makeText(getApplicationContext(), "cover size:" + cover_photo_size, Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
