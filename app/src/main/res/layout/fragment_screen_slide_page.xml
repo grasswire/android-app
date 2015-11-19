@@ -22,8 +22,7 @@
     <!-- Dummy content. -->
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
         <RelativeLayout android:id="@id/story_layout"
             android:layout_width="match_parent"
@@ -36,8 +35,9 @@
                 android:textColor="@color/title_foreground_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginLeft="5dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true" />
 
             <TextView android:id="@id/story_headline"
                 style="?android:textAppearanceLarge"
@@ -45,8 +45,8 @@
                 android:textColor="@color/title_foreground_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="16dp" />
+                android:layout_below="@id/story_title" />
+
         </RelativeLayout>
 
         <TextView style="?android:textAppearanceMedium"
@@ -54,6 +54,7 @@
             android:lineSpacingMultiplier="1.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
             android:text="@string/page_filler" />
 
         <ListView android:id="@android:id/list"

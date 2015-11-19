@@ -11,6 +11,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
+import android.util.Log;
+
 import android.util.DisplayMetrics;
 
 import java.io.IOException;
@@ -65,25 +67,15 @@ public class MainActivity extends FragmentActivity {
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        cover_photo_size = metrics.heightPixels / 2;
+        cover_photo_size = metrics.heightPixels;
 
-        //Toast.makeText(getApplicationContext(), "App launched, splash screen displayed", Toast.LENGTH_SHORT).show();
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
-    }
-
-    /** Shuts down the app on the pause event */
-    @Override
-    protected void onPause() {
-        //  Auto-generated method stub
-        super.onPause();
-        finish();
     }
 
     /** Back key handling on sliding pages */
