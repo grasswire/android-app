@@ -21,4 +21,7 @@
     <item type="id" name="story_headline" />
     <item type="id" name="story_list" />
     <item type="id" name="story_image" />
+    <item type="id" name="story_links" />
+    <item type="id" name="link_title" />
+    <item type="id" name="link_description" />
 </resources>

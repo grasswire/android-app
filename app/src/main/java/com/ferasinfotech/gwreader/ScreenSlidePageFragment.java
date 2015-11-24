@@ -22,10 +22,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import com.squareup.picasso.Target;
 
+import java.lang.reflect.Array;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -57,12 +60,12 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_SUMMARY = "summary";
     public static final String ARG_COVER_PHOTO = "coverPhoto";
     public static final String ARG_COVER_PHOTO_SIZE = "coverPhotoSize";
+    public static final String ARG_STORY_STRING = "storyString";
 
     private static final String TAG_NAME = "name";
     private static final String TAG_SUMMARY = "summary";
     private static final String TAG_HEADLINE = "headline";
     private static final String TAG_COVER_PHOTO = "coverPhoto";
-    private static final String TAG_LINKS = "links";
 
     /**
      * The fragment's page number, which is set to the argument value for {@link #ARG_PAGE}.
@@ -96,11 +99,15 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mCoverPhoto;
 
     /**
+     * The fragment's list of Story JSON string, expressed as a String converted from the Story's JSONarray
+     */
+    private String mStoryString;
+
+    /**
      * The size of the cover photo relative layout, which is set to the argument value for {@link #ARG_COVER_PHOTO_SIZE}
      */
     private int mCoverPhotoSize;
 
-    private String[] items = new String[] {"Dog", "Cat", "Kangaroo", "Koala"};
 
     /**
      * Target object for caching of Picasso
@@ -132,9 +139,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         String summary = "";
         String headline = "";
         String cover_photo_url = "";
-
-        // links JSONArray
-        JSONArray links = null;
+        String story_string = "";
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
@@ -143,8 +148,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             summary = story.getString(TAG_SUMMARY);
             headline = story.getString(TAG_HEADLINE);
             cover_photo_url = story.getString(TAG_COVER_PHOTO);
-            links = story.getJSONArray(TAG_LINKS);
-            //Log.d("Number of links", "********* for " + name + ":" + links.length());
+            story_string = story.toString();
         }
         catch  (JSONException e) {
             name = "Unknown";
@@ -156,6 +160,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_HEADLINE, headline);
         args.putString(ARG_COVER_PHOTO, cover_photo_url);
         args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
+        args.putString(ARG_STORY_STRING, story_string);
         fragment.setArguments(args);
         return fragment;
     }
@@ -174,6 +179,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_HEADLINE, "");
         args.putString(ARG_COVER_PHOTO, "");
         args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
+        args.putString(ARG_STORY_STRING, "");
         fragment.setArguments(args);
         return fragment;
     }
@@ -190,6 +196,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mHeadline = getArguments().getString(ARG_HEADLINE);
         mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
         mCoverPhotoSize = getArguments().getInt(ARG_COVER_PHOTO_SIZE);
+        mStoryString = getArguments().getString(ARG_STORY_STRING);
     }
 
 
@@ -205,7 +212,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         LayoutParams params = lay.getLayoutParams();
         params.height = mCoverPhotoSize;
 
-        //Picasso.with(getActivity()).setLoggingEnabled(true);
+        //Picasso.with(getLity()).setLoggingEnabled(true);
         //Picasso.with(getActivity()).setIndicatorsEnabled(true);
         Picasso.with(getActivity()).load(mCoverPhoto).into(picassoTarget);
 
@@ -220,8 +227,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         //Log.d("Building page", "********* " + mPageNumber);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, items);
-        ListView lv = (ListView) rootView.findViewById(android.R.id.list);
+        //ArrayAdapter<String> adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, items);
+        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
+        ListView lv = (ListView) rootView.findViewById(R.id.story_links);
         lv.setAdapter(adapter);
         Utility.setListViewHeightBasedOnChildren(lv);
 

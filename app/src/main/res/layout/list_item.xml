@@ -1,0 +1,21 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:id="@id/link_title"
+        style="?android:textAppearanceMedium"
+        android:textStyle="bold"
+        android:background="@color/title_background_color"
+        android:textColor="@color/title_foreground_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView android:id="@id/link_description"
+        style="?android:textAppearanceMedium"
+        android:textStyle="bold"
+        android:textColor="@color/title_foreground_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
+
