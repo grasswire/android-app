@@ -49,8 +49,8 @@
 
         </RelativeLayout>
 
-        <TextView style="?android:textAppearanceMedium"
-            android:id="@id/story_summary"
+        <TextView android:id="@id/story_summary"
+            style="?android:textAppearanceMedium"
             android:lineSpacingMultiplier="1.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

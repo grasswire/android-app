@@ -24,4 +24,8 @@
     <item type="id" name="story_links" />
     <item type="id" name="link_title" />
     <item type="id" name="link_description" />
+    <item type="id" name="link_image" />
+    <item type="id" name="link_profile_image" />
+    <item type="id" name="link_profile_name" />
+    <item type="id" name="link_elapsed_time" />
 </resources>
