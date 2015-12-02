@@ -45,14 +45,23 @@ import org.json.JSONObject;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
+
 /**
- * A fragment representing a single step in a wizard. The fragment shows a dummy title indicating
- * the page number, along with some dummy text.
+ * The ScreenSlidePageFragment class to represents a single page in the sliding display of pages.
+ *
+ * It extends a class from the support library so as to be usable on older Android devices.
+ *
+ * It is instantiated with a single 'story' element from the array of stories received from the
+ * GrassWire API server, and constructs and delivers a 'Bundle' of the story parameters to populate
+ * its 'View' with a variety of data from the story.
+ *
+ * It makes use of the Picasso image loading and caching library to asynchronously load images URLs,
+ * and manage a cache of those images.
  *
  */
 public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     /**
-     * The argument key for the page number this fragment represents.
+     * The argument key for the data given to this fragment.
      */
     public static final String ARG_PAGE = "page";
     public static final String ARG_TITLE = "title";
@@ -184,9 +193,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         return fragment;
     }
 
-    public ScreenSlidePageFragment() {
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -201,13 +207,11 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        // Inflate the layout containing a title and body text.
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
-        // Get the linear layout and then start the background task to fetch an image for it
         lay = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
         LayoutParams params = lay.getLayoutParams();
         params.height = mCoverPhotoSize;
@@ -216,18 +220,12 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         //Picasso.with(getActivity()).setIndicatorsEnabled(true);
         Picasso.with(getActivity()).load(mCoverPhoto).into(picassoTarget);
 
-        // Set the title view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
-
-        // Set the headline view to show the article headline.
         ((TextView) rootView.findViewById(R.id.story_headline)).setText(mHeadline);
-
-        // Set the summary view to show the article title.
         ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
         //Log.d("Building page", "********* " + mPageNumber);
 
-        //ArrayAdapter<String> adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, items);
         LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
         ListView lv = (ListView) rootView.findViewById(R.id.story_links);
         lv.setAdapter(adapter);

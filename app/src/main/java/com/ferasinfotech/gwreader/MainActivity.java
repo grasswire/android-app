@@ -31,15 +31,12 @@ import java.util.Calendar;
 import java.util.Locale;
 
 /**
- * Demonstrates a "screen-slide" animation using a {@link ViewPager}. Because {@link ViewPager}
- * automatically plays such an animation when calling {@link ViewPager#setCurrentItem(int)}, there
- * isn't any animation-specific code in this sample.
+ * Main activity class for the GWreader app.
  *
- * <p>This sample shows a "next" button that advances the user to the next step in a wizard,
- * animating the current screen out (to the left) and the next screen in (from the right). The
- * reverse animation is played when the user presses the "previous" button.</p>
+ * Queries the GrassWire API server for a JSON structure of current news stories, descriptive text,
+ * image URLs and associated tweets, web links, and video URLs.
  *
- * @see ScreenSlidePageFragment
+ * The app parses the JSON and creates a "screen-slide" animation using a {@link ViewPager}.
  */
 public class MainActivity extends FragmentActivity {
 
@@ -91,26 +88,8 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    /**
-     * Return date in specified format.
-     * @param milliSeconds Date in milliseconds
-     * @param dateFormat Date format
-     * @return String representing date in specified format
-     */
-    public static String getDate(long milliSeconds, String dateFormat)
-    {
-        // Create a DateFormatter object for displaying date in specified format.
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
-
-        // Create a calendar object that will convert the date and time value in milliseconds to date.
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliSeconds);
-        return formatter.format(calendar.getTime());
-    }
-
     /* Invoked upon reception of JSON data from GrassWire API - creates slideable story page fragments, 1 per story */
-    private void build_screens(String json_str)
-    {
+    private void build_screens(String json_str) {
         PagerAdapter mPagerAdapter;
 
         //Toast.makeText(getApplicationContext(), "density:" + logicalDensity, Toast.LENGTH_LONG).show();
@@ -120,12 +99,12 @@ public class MainActivity extends FragmentActivity {
                 JSONObject jsonObj = new JSONObject(json_str);
                 long createdAt = jsonObj.getLong(TAG_CREATEDAT);
 
-                // Getting JSON Array node
                 stories = jsonObj.getJSONArray(TAG_STORIES);
 
                 num_pages = stories.length();
-                Toast.makeText(getApplicationContext(), "Digest created:" + getDate(createdAt,  "MM/dd/yyyy hh:mm"),
+                Toast.makeText(getApplicationContext(), "Digest created:" + Utility.getDate(createdAt,  "MM/dd/yyyy hh:mm"),
                         Toast.LENGTH_LONG).show();
+
                 //Toast.makeText(getApplicationContext(), "cover size:" + cover_photo_size, Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
@@ -144,8 +123,7 @@ public class MainActivity extends FragmentActivity {
                     }
                 });
             }
-            catch  (JSONException e)
-            {
+            catch  (JSONException e) {
                 Toast.makeText(getApplicationContext(), "JSON parsing exception", Toast.LENGTH_LONG).show();
             }
         }
@@ -186,7 +164,8 @@ public class MainActivity extends FragmentActivity {
         protected String doInBackground(String... urls) {
             try {
                 return loadFromNetwork(urls[0]);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 return getString(R.string.connection_error);
             }
         }
@@ -207,7 +186,8 @@ public class MainActivity extends FragmentActivity {
         try {
             stream = downloadUrl(urlString);
             str = readIt(stream);
-        } finally {
+        }
+        finally {
             if (stream != null) {
                 stream.close();
             }
