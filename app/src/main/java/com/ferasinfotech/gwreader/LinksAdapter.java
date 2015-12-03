@@ -137,6 +137,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = tw.getString(TAG_TWEET_TEXT);
             Log.d("***DEBUG***", "Got tweet text:" + s);
             holder.description.setText(s);
+            holder.elapsed_time.setText("Tweet");
             s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
             Log.d("***DEBUG***", "Got tweet username:" + s);
             holder.profile_name.setText("@" + s);
@@ -174,7 +175,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         }
 
     }
-    private void do_linkdata_info(JSONObject link, ViewHolder holder) {
+    private void do_linkdata_info(JSONObject link, ViewHolder holder, String kind) {
         String s;
         try {
             do_link_user_info(link, holder);
@@ -185,6 +186,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = link_data.getString(TAG_LINKDATA_DESCRIPTION);
             Log.d("***DEBUG***", "Got linkdata description:" + s);
             holder.description.setText(s);
+            holder.elapsed_time.setText(kind);
             s = link_data.getString(TAG_LINKDATA_THUMBNAIL);
             if (s.length() > 0) {
                 Log.d("***DEBUG***", "Got linkdata thumbnail url:" + s);
@@ -198,12 +200,12 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
     private void do_plain_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing plain link");
-        do_linkdata_info(link, holder);
+        do_linkdata_info(link, holder, "Link");
     }
 
     private void do_video_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing video link");
-        do_linkdata_info(link, holder);
+        do_linkdata_info(link, holder, "video");
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -214,9 +216,11 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             vi = inflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder().create(vi);
             vi.setTag(holder);
+            Log.d("***DEBUG***", "Creating listitem for position:" + position);
         }
         else {
             holder = (ViewHolder) vi.getTag();
+            Log.d("***DEBUG***", "Finding listitem for position:" + position);
         }
 
         if (links.length() == 0) {

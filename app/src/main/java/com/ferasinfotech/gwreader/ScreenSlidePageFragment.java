@@ -224,7 +224,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ((TextView) rootView.findViewById(R.id.story_headline)).setText(mHeadline);
         ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
-        //Log.d("Building page", "********* " + mPageNumber);
+        Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
         LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
         ListView lv = (ListView) rootView.findViewById(R.id.story_links);
