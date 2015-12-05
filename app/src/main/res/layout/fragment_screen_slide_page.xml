@@ -36,25 +36,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true" />
-
-            <TextView android:id="@id/story_headline"
-                style="?android:textAppearanceLarge"
-                android:textStyle="bold"
-                android:textColor="@color/title_foreground_color"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/story_title" />
+                android:layout_marginTop="15dp"
+                android:layout_alignParentLeft="true" />
 
         </RelativeLayout>
+
+        <TextView android:id="@id/story_headline"
+            style="?android:textAppearanceLarge"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_below="@id/story_title" />
 
         <TextView android:id="@id/story_summary"
             style="?android:textAppearanceMedium"
             android:lineSpacingMultiplier="1.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="10dp"
             android:text="@string/page_filler" />
 
         <ListView android:id="@id/story_links"

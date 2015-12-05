@@ -16,30 +16,24 @@
 
 package com.ferasinfotech.gwreader;
 
-import android.widget.FrameLayout;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import com.squareup.picasso.Target;
 
-import java.lang.reflect.Array;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import android.view.ViewGroup.LayoutParams;
 
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,7 +45,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
  *
  * It extends a class from the support library so as to be usable on older Android devices.
  *
- * It is instantiated with a single 'story' element from the array of stories received from the
+ * It is instantiated with a single 'story' element from the array of mStories received from the
  * GrassWire API server, and constructs and delivers a 'Bundle' of the story parameters to populate
  * its 'View' with a variety of data from the story.
  *
@@ -97,10 +91,10 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mHeadline;
 
     /**
-     * The fragment's LinearLayout, saved so the async task can set it's background after fetching
+     * The fragment's Layout, saved so the async task can set it's background after fetching
      * the image.
      */
-    private RelativeLayout lay;
+    private RelativeLayout mlayout;
 
     /**
      * The fragment's URL for the cover photo, which is set to the argument value for {@link #ARG_COVER_PHOTO}
@@ -115,7 +109,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     /**
      * The size of the cover photo relative layout, which is set to the argument value for {@link #ARG_COVER_PHOTO_SIZE}
      */
-    private int mCoverPhotoSize;
+    private int mScreenSize;
 
 
     /**
@@ -125,7 +119,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         @Override
         public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-            lay.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
+            mlayout.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
             //Log.d("Picasso Image:", "Render Complete:" + mCoverPhoto);
         }
 
@@ -201,7 +195,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
         mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
-        mCoverPhotoSize = getArguments().getInt(ARG_COVER_PHOTO_SIZE);
+        mScreenSize = getArguments().getInt(ARG_COVER_PHOTO_SIZE);
         mStoryString = getArguments().getString(ARG_STORY_STRING);
     }
 
@@ -212,9 +206,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
-        lay = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
-        LayoutParams params = lay.getLayoutParams();
-        params.height = mCoverPhotoSize;
+        mlayout = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
+        LayoutParams params = mlayout.getLayoutParams();
+        params.height = mScreenSize / 2;
 
         //Picasso.with(getLity()).setLoggingEnabled(true);
         //Picasso.with(getActivity()).setIndicatorsEnabled(true);
@@ -226,7 +220,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
-        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
+        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString, mScreenSize);
         ListView lv = (ListView) rootView.findViewById(R.id.story_links);
         lv.setAdapter(adapter);
         Utility.setListViewHeightBasedOnChildren(lv);

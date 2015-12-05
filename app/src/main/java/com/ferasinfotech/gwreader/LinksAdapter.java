@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.View.*;
 import android.view.LayoutInflater;
 
-import android.content.Context;
-
 import android.widget.TextView;
 import android.widget.ImageView;
 
@@ -50,24 +48,27 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private static final String TAG_TWEET_MEDIA = "media";
     private static final String TAG_TWEET_MEDIA_URL = "media_url";
 
-    private Activity activity;
-    private Context the_context;
-    private JSONArray links;
-    private static LayoutInflater inflater=null;
+    private Activity  mActivity;
+    private int       mScreenSize;
+    private Context   mContext;
+    private JSONArray mLinks;
 
-    public LinksAdapter(Activity a, String json_story_string) {
+    private static    LayoutInflater sInflator = null;
+
+    public LinksAdapter(Activity a, String json_story_string, int screen_size) {
         JSONObject jsonObj = null;
 
-        activity = a;
-        the_context = activity.getApplicationContext();
-        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mActivity = a;
+        mContext = mActivity.getApplicationContext();
+        mScreenSize = screen_size;
+        sInflator = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         try {
             jsonObj = new JSONObject(json_story_string);
-            links = jsonObj.getJSONArray(TAG_LINKS);
-            Log.d("JSON links", "Array length:" + links.length());
+            mLinks = jsonObj.getJSONArray(TAG_LINKS);
+            Log.d("JSON links", "Array length:" + mLinks.length());
         }
         catch (JSONException e) {
-            links = null;
+            mLinks = null;
             Log.d("JSON links", "JSON parse failed");
         }
     }
@@ -89,7 +90,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     }
 
     public int getCount() {
-        return links.length();
+        return mLinks.length();
     }
 
     /********* Create a holder Class to contain inflated xml file elements *********/
@@ -104,6 +105,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
         public ViewHolder create(View vi) {
             ViewHolder holder;
+            ViewGroup.LayoutParams params;
 
             holder = new ViewHolder();
             holder.profile_image = (ImageView) vi.findViewById(R.id.link_profile_image);
@@ -112,6 +114,16 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.title = (TextView) vi.findViewById(R.id.link_title);
             holder.image = (ImageView) vi.findViewById(R.id.link_image);
             holder.description = (TextView)vi.findViewById(R.id.link_description);
+
+            params = holder.image.getLayoutParams();
+            params.height = mScreenSize / 3;
+            params.width = params.height;
+            holder.image.setLayoutParams(params);
+
+            params = holder.profile_image.getLayoutParams();
+            params.height = mScreenSize / 10;
+            params.width = params.height;
+            holder.profile_image.setLayoutParams(params);
 
             return holder;
         }
@@ -143,14 +155,14 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.profile_name.setText("@" + s);
             s = user.getString(TAG_TWEET_USER_IMAGE_URL);
             Log.d("***DEBUG***", "Got tweet profile image url:" + s);
-            Picasso.with(the_context).load(s).into(holder.profile_image);
+            Picasso.with(mContext).load(s).into(holder.profile_image);
             medias = entities.getJSONArray(TAG_TWEET_MEDIA);
             if (medias.length() > 0) {
                 media = medias.getJSONObject(0);
                 s = media.getString(TAG_TWEET_MEDIA_URL);
                 if (s.length() > 0) {
                     Log.d("***DEBUG***", "Got tweet media url:" + s);
-                    Picasso.with(the_context).load(s).into(holder.image);
+                    Picasso.with(mContext).load(s).into(holder.image);
                 }
             }
         }
@@ -168,7 +180,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.profile_name.setText("@" + s);
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
             Log.d("***DEBUG***", "Got linkuser profile image url:" + s);
-            Picasso.with(the_context).load(s).into(holder.profile_image);
+            Picasso.with(mContext).load(s).into(holder.profile_image);
         }
         catch (JSONException e) {
             handle_link_parse_exception(e);
@@ -190,7 +202,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = link_data.getString(TAG_LINKDATA_THUMBNAIL);
             if (s.length() > 0) {
                 Log.d("***DEBUG***", "Got linkdata thumbnail url:" + s);
-                Picasso.with(the_context).load(s).into(holder.image);
+                Picasso.with(mContext).load(s).into(holder.image);
             }
         }
         catch (JSONException e) {
@@ -213,7 +225,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         ViewHolder holder;
 
         if (vi == null) {
-            vi = inflater.inflate(R.layout.list_item, null);
+            vi = sInflator.inflate(R.layout.list_item, null);
             holder = new ViewHolder().create(vi);
             vi.setTag(holder);
             Log.d("***DEBUG***", "Creating listitem for position:" + position);
@@ -223,7 +235,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             Log.d("***DEBUG***", "Finding listitem for position:" + position);
         }
 
-        if (links.length() == 0) {
+        if (mLinks.length() == 0) {
             holder.title.setText("");
             holder.description.setText("");
         }
@@ -231,7 +243,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             String title = "Missing Title";
             String description = "Missing Description";
             try {
-                JSONObject link = links.getJSONObject(position);
+                JSONObject link = mLinks.getJSONObject(position);
                 String link_type = link.getString(TAG_LINK_TYPE);
                 if (link_type.contains("TweetLinkJsonModel")) {
                     do_tweet_link(link, holder);

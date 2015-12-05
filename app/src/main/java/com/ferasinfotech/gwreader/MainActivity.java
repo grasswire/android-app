@@ -11,8 +11,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
-import android.util.Log;
-
 import android.util.DisplayMetrics;
 
 import java.io.IOException;
@@ -26,14 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-
 /**
  * Main activity class for the GWreader app.
  *
- * Queries the GrassWire API server for a JSON structure of current news stories, descriptive text,
+ * Queries the GrassWire API server for a JSON structure of current news mStories, descriptive text,
  * image URLs and associated tweets, web links, and video URLs.
  *
  * The app parses the JSON and creates a "screen-slide" animation using a {@link ViewPager}.
@@ -46,7 +40,7 @@ public class MainActivity extends FragmentActivity {
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static int num_pages = 0;
+    private int mNumPages = 0;
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -57,10 +51,9 @@ public class MainActivity extends FragmentActivity {
     /**
      * Size of the cover photo in pixel
      */
-    private int cover_photo_size;
+    private int mScreenSize;
 
-    // stories JSONArray
-    JSONArray stories = null;
+    JSONArray mStories = null;
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
     @Override
@@ -70,7 +63,7 @@ public class MainActivity extends FragmentActivity {
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        cover_photo_size = metrics.heightPixels;
+        mScreenSize = metrics.heightPixels;
 
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
@@ -99,13 +92,13 @@ public class MainActivity extends FragmentActivity {
                 JSONObject jsonObj = new JSONObject(json_str);
                 long createdAt = jsonObj.getLong(TAG_CREATEDAT);
 
-                stories = jsonObj.getJSONArray(TAG_STORIES);
+                mStories = jsonObj.getJSONArray(TAG_STORIES);
 
-                num_pages = stories.length();
-                Toast.makeText(getApplicationContext(), "Digest created:" + Utility.getDate(createdAt,  "MM/dd/yyyy hh:mm"),
+                mNumPages = mStories.length();
+                Toast.makeText(getApplicationContext(), "Digest created:" + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm"),
                         Toast.LENGTH_LONG).show();
 
-                //Toast.makeText(getApplicationContext(), "cover size:" + cover_photo_size, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "cover size:" + mCoverPhotoSize, Toast.LENGTH_LONG).show();
 
                 // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
@@ -141,16 +134,16 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, num_pages, cover_photo_size, stories.getJSONObject(position));
+                return ScreenSlidePageFragment.create(position, mNumPages, mScreenSize, mStories.getJSONObject(position));
             }
             catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, num_pages, cover_photo_size, "JSON parsing problem");
+                return ScreenSlidePageFragment.create(position, mNumPages, mScreenSize, "JSON parsing problem");
             }
         }
 
         @Override
         public int getCount() {
-            return num_pages;
+            return mNumPages;
         }
     }
 
