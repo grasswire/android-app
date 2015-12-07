@@ -2,4 +2,6 @@
 <resources>
     <color name="title_background_color">#4099A8</color>
     <color name="title_foreground_color">#FFFFFF</color>
+    <color name="headline_background_color">#b1afac</color>
+    <color name="white_background_color">#FFFFFF</color>
 </resources>

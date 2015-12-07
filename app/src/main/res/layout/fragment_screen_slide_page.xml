@@ -42,15 +42,17 @@
         </RelativeLayout>
 
         <TextView android:id="@id/story_headline"
-            style="?android:textAppearanceLarge"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:background="@color/headline_background_color"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:paddingLeft="5dp"
             android:layout_below="@id/story_title" />
 
         <TextView android:id="@id/story_summary"
-            style="?android:textAppearanceMedium"
+            android:textSize="20sp"
+            android:background="@color/white_background_color"
             android:lineSpacingMultiplier="1.2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,8 +61,8 @@
 
         <ListView android:id="@id/story_links"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </ListView>
+            android:layout_height="wrap_content"
+            android:dividerHeight="10.0sp" />
     </LinearLayout>
 
 </ScrollView>
