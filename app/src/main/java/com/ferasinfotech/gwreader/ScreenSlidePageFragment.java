@@ -62,7 +62,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_HEADLINE = "headline";
     public static final String ARG_SUMMARY = "summary";
     public static final String ARG_COVER_PHOTO = "coverPhoto";
-    public static final String ARG_COVER_PHOTO_SIZE = "coverPhotoSize";
+    public static final String ARG_COVER_PHOTO_HEIGHT = "coverPhotoHeight";
     public static final String ARG_STORY_STRING = "storyString";
 
     private static final String TAG_NAME = "name";
@@ -107,9 +107,10 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mStoryString;
 
     /**
-     * The size of the cover photo relative layout, which is set to the argument value for {@link #ARG_COVER_PHOTO_SIZE}
+     * The size of the cover photo relative layout, which is set to the argument
+     * value {@link #ARG_COVER_PHOTO_HEIGHT}
      */
-    private int mScreenSize;
+    private int mScreenHeight;
 
 
     /**
@@ -137,7 +138,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages, int cover_photo_size, JSONObject story) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages,
+                                                 int cover_photo_height, JSONObject story) {
         String name = "";
         String summary = "";
         String headline = "";
@@ -162,7 +164,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, summary);
         args.putString(ARG_HEADLINE, headline);
         args.putString(ARG_COVER_PHOTO, cover_photo_url);
-        args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
+        args.putInt(ARG_COVER_PHOTO_HEIGHT, cover_photo_height);
         args.putString(ARG_STORY_STRING, story_string);
         fragment.setArguments(args);
         return fragment;
@@ -172,7 +174,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      *  with page title given as a string parameter without a JSON object containing details.
      *  (used to construct and empty page when a JSON parsing error of a story occurs)
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages, int cover_photo_size, String story_title) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages,
+                                                 int cover_photo_height, String story_title) {
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
@@ -181,7 +184,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, "");
         args.putString(ARG_HEADLINE, "");
         args.putString(ARG_COVER_PHOTO, "");
-        args.putInt(ARG_COVER_PHOTO_SIZE, cover_photo_size);
+        args.putInt(ARG_COVER_PHOTO_HEIGHT, cover_photo_height);
         args.putString(ARG_STORY_STRING, "");
         fragment.setArguments(args);
         return fragment;
@@ -195,7 +198,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
         mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
-        mScreenSize = getArguments().getInt(ARG_COVER_PHOTO_SIZE);
+        mScreenHeight = getArguments().getInt(ARG_COVER_PHOTO_HEIGHT);
         mStoryString = getArguments().getString(ARG_STORY_STRING);
     }
 
@@ -208,7 +211,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         mlayout = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
         LayoutParams params = mlayout.getLayoutParams();
-        params.height = mScreenSize / 2;
+        params.height = mScreenHeight / 2;
 
         //Picasso.with(getLity()).setLoggingEnabled(true);
         //Picasso.with(getActivity()).setIndicatorsEnabled(true);
@@ -220,7 +223,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
-        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString, mScreenSize);
+        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString, mScreenHeight);
         ListView lv = (ListView) rootView.findViewById(R.id.story_links);
         lv.setAdapter(adapter);
         Utility.setListViewHeightBasedOnChildren(lv);

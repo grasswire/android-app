@@ -49,18 +49,18 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private static final String TAG_TWEET_MEDIA_URL = "media_url";
 
     private Activity  mActivity;
-    private int       mScreenSize;
+    private int       mScreenHeight;
     private Context   mContext;
     private JSONArray mLinks;
 
     private static    LayoutInflater sInflator = null;
 
-    public LinksAdapter(Activity a, String json_story_string, int screen_size) {
+    public LinksAdapter(Activity a, String json_story_string, int screen_height) {
         JSONObject jsonObj = null;
 
         mActivity = a;
         mContext = mActivity.getApplicationContext();
-        mScreenSize = screen_size;
+        mScreenHeight = screen_height;
         sInflator = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         try {
             jsonObj = new JSONObject(json_story_string);
@@ -114,17 +114,14 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.title = (TextView) vi.findViewById(R.id.link_title);
             holder.image = (ImageView) vi.findViewById(R.id.link_image);
             holder.description = (TextView)vi.findViewById(R.id.link_description);
-
+/*
             params = holder.image.getLayoutParams();
-            params.height = mScreenSize / 3;
-            params.width = params.height;
+            params.height = mScreenHeight / 2;
             holder.image.setLayoutParams(params);
-
             params = holder.profile_image.getLayoutParams();
-            params.height = mScreenSize / 10;
-            params.width = params.height;
+            params.height = mScreenHeight / 16;
             holder.profile_image.setLayoutParams(params);
-
+*/
             return holder;
         }
     }

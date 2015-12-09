@@ -51,7 +51,7 @@ public class MainActivity extends FragmentActivity {
     /**
      * Size of the cover photo in pixel
      */
-    private int mScreenSize;
+    private int mScreenHeight;
 
     JSONArray mStories = null;
 
@@ -63,7 +63,7 @@ public class MainActivity extends FragmentActivity {
 
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        mScreenSize = metrics.heightPixels;
+        mScreenHeight = metrics.heightPixels;
 
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
@@ -134,10 +134,12 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, mNumPages, mScreenSize, mStories.getJSONObject(position));
+                return ScreenSlidePageFragment.create(position, mNumPages, mScreenHeight,
+                        mStories.getJSONObject(position));
             }
             catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, mNumPages, mScreenSize, "JSON parsing problem");
+                return ScreenSlidePageFragment.create(position, mNumPages, mScreenHeight,
+                        "JSON parsing problem");
             }
         }
 
