@@ -23,11 +23,13 @@ public class Utility {
         }
 
         int totalHeight = 0;
+        int itemHeight;
         int desiredWidth = MeasureSpec.makeMeasureSpec(listView.getWidth(), MeasureSpec.AT_MOST);
         for (int i = 0; i < listAdapter.getCount(); i++) {
             View listItem = listAdapter.getView(i, null, listView);
             listItem.measure(desiredWidth, MeasureSpec.UNSPECIFIED);
-            totalHeight += listItem.getMeasuredHeight();
+            itemHeight = listItem.getMeasuredHeight();
+            totalHeight += itemHeight;
         }
 
         ViewGroup.LayoutParams params = listView.getLayoutParams();

@@ -28,4 +28,5 @@
     <item type="id" name="link_profile_image" />
     <item type="id" name="link_profile_name" />
     <item type="id" name="link_elapsed_time" />
+    <item type="id" name="link_type" />
 </resources>

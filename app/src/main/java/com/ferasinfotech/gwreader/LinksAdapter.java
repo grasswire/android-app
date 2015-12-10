@@ -49,18 +49,16 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private static final String TAG_TWEET_MEDIA_URL = "media_url";
 
     private Activity  mActivity;
-    private int       mScreenHeight;
     private Context   mContext;
     private JSONArray mLinks;
 
     private static    LayoutInflater sInflator = null;
 
-    public LinksAdapter(Activity a, String json_story_string, int screen_height) {
+    public LinksAdapter(Activity a, String json_story_string) {
         JSONObject jsonObj = null;
 
         mActivity = a;
         mContext = mActivity.getApplicationContext();
-        mScreenHeight = screen_height;
         sInflator = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         try {
             jsonObj = new JSONObject(json_story_string);
@@ -98,6 +96,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
         public TextView title;
         public TextView description;
+        public TextView link_type;
         public ImageView image;
         public ImageView profile_image;
         public TextView profile_name;
@@ -110,18 +109,11 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder = new ViewHolder();
             holder.profile_image = (ImageView) vi.findViewById(R.id.link_profile_image);
             holder.profile_name = (TextView) vi.findViewById(R.id.link_profile_name);
+            holder.link_type = (TextView) vi.findViewById(R.id.link_type);
             holder.elapsed_time = (TextView) vi.findViewById(R.id.link_elapsed_time);
             holder.title = (TextView) vi.findViewById(R.id.link_title);
             holder.image = (ImageView) vi.findViewById(R.id.link_image);
             holder.description = (TextView)vi.findViewById(R.id.link_description);
-/*
-            params = holder.image.getLayoutParams();
-            params.height = mScreenHeight / 2;
-            holder.image.setLayoutParams(params);
-            params = holder.profile_image.getLayoutParams();
-            params.height = mScreenHeight / 16;
-            holder.profile_image.setLayoutParams(params);
-*/
             return holder;
         }
     }
@@ -144,21 +136,18 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             user = tw.getJSONObject(TAG_TWEET_USER);
             entities = tw.getJSONObject(TAG_TWEET_ENTITIES);
             s = tw.getString(TAG_TWEET_TEXT);
-            Log.d("***DEBUG***", "Got tweet text:" + s);
             holder.description.setText(s);
-            holder.elapsed_time.setText("Tweet");
+            holder.link_type.setText("T");
+            holder.elapsed_time.setText("? h ago");
             s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
-            Log.d("***DEBUG***", "Got tweet username:" + s);
             holder.profile_name.setText("@" + s);
             s = user.getString(TAG_TWEET_USER_IMAGE_URL);
-            Log.d("***DEBUG***", "Got tweet profile image url:" + s);
             Picasso.with(mContext).load(s).into(holder.profile_image);
             medias = entities.getJSONArray(TAG_TWEET_MEDIA);
             if (medias.length() > 0) {
                 media = medias.getJSONObject(0);
                 s = media.getString(TAG_TWEET_MEDIA_URL);
                 if (s.length() > 0) {
-                    Log.d("***DEBUG***", "Got tweet media url:" + s);
                     Picasso.with(mContext).load(s).into(holder.image);
                 }
             }
@@ -173,10 +162,10 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         try {
             JSONObject user = link.getJSONObject(TAG_LINKUSER);
             s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
-            Log.d("***DEBUG***", "Got linkuser screen name:" + s);
             holder.profile_name.setText("@" + s);
+            holder.link_type.setText("L");
+            holder.elapsed_time.setText("? h ago");
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
-            Log.d("***DEBUG***", "Got linkuser profile image url:" + s);
             Picasso.with(mContext).load(s).into(holder.profile_image);
         }
         catch (JSONException e) {
@@ -190,15 +179,13 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             do_link_user_info(link, holder);
             JSONObject link_data = link.getJSONObject(TAG_LINKDATA);
             s = link_data.getString(TAG_LINKDATA_TITLE);
-            Log.d("***DEBUG***", "Got linkdata title:" + s);
             holder.title.setText(s);
             s = link_data.getString(TAG_LINKDATA_DESCRIPTION);
-            Log.d("***DEBUG***", "Got linkdata description:" + s);
             holder.description.setText(s);
-            holder.elapsed_time.setText(kind);
+            holder.link_type.setText(kind);
+            holder.elapsed_time.setText("? h ago");
             s = link_data.getString(TAG_LINKDATA_THUMBNAIL);
             if (s.length() > 0) {
-                Log.d("***DEBUG***", "Got linkdata thumbnail url:" + s);
                 Picasso.with(mContext).load(s).into(holder.image);
             }
         }
@@ -209,12 +196,12 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
     private void do_plain_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing plain link");
-        do_linkdata_info(link, holder, "Link");
+        do_linkdata_info(link, holder, "L");
     }
 
     private void do_video_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing video link");
-        do_linkdata_info(link, holder, "video");
+        do_linkdata_info(link, holder, "V");
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {

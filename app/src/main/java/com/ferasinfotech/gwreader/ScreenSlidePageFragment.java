@@ -223,7 +223,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
-        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString, mScreenHeight);
+        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
         ListView lv = (ListView) rootView.findViewById(R.id.story_links);
         lv.setAdapter(adapter);
         Utility.setListViewHeightBasedOnChildren(lv);
