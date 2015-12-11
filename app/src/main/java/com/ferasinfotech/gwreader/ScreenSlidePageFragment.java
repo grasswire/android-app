@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -209,7 +210,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
-        mlayout = ((RelativeLayout) rootView.findViewById(R.id.story_layout));
+        mlayout = (RelativeLayout) rootView.findViewById(R.id.story_image_overlay_layout);
         LayoutParams params = mlayout.getLayoutParams();
         params.height = mScreenHeight / 2;
 
@@ -224,9 +225,11 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
         LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
-        ListView lv = (ListView) rootView.findViewById(R.id.story_links);
-        lv.setAdapter(adapter);
-        Utility.setListViewHeightBasedOnChildren(lv);
+        LinearLayout ll = (LinearLayout) rootView.findViewById(R.id.story_layout);
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View listItem = adapter.getView(i, null, ll);
+            ll.addView(listItem);
+        }
 
         return rootView;
     }

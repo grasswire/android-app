@@ -20,11 +20,12 @@
     android:layout_height="match_parent">
 
     <!-- Dummy content. -->
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout android:id="@id/story_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout android:id="@id/story_layout"
+        <RelativeLayout android:id="@id/story_image_overlay_layout"
             android:layout_width="match_parent"
             android:layout_height="10dp">
 
@@ -59,10 +60,6 @@
             android:padding="10dp"
             android:text="@string/page_filler" />
 
-        <ListView android:id="@id/story_links"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:dividerHeight="10.0sp" />
     </LinearLayout>
 
 </ScrollView>
