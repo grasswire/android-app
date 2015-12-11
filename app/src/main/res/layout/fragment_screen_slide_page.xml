@@ -26,6 +26,7 @@
         android:orientation="vertical">
 
         <RelativeLayout android:id="@id/story_image_overlay_layout"
+            android:background="@drawable/gw_placeholder"
             android:layout_width="match_parent"
             android:layout_height="10dp">
 
