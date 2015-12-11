@@ -121,6 +121,24 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         Log.d("***DEBUG***", "JSON parse error on links");
     }
 
+    private void do_link_user_info(JSONObject link, ViewHolder holder) {
+        String s;
+        try {
+            JSONObject user = link.getJSONObject(TAG_LINKUSER);
+            s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
+            holder.profile_name.setText("@" + s);
+            holder.link_type.setText("L");
+            holder.elapsed_time.setText("? h ago");
+            s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
+            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
+
+        }
+        catch (JSONException e) {
+            handle_link_parse_exception(e);
+        }
+
+    }
+
     private void do_tweet_link(JSONObject link, ViewHolder holder) {
         String s;
         JSONObject tw;
@@ -134,16 +152,19 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             Boolean no_image = true;
 
             tw = link.getJSONObject(TAG_LINK_TWEET);
-            user = tw.getJSONObject(TAG_TWEET_USER);
+            do_link_user_info(link, holder);
             entities = tw.getJSONObject(TAG_TWEET_ENTITIES);
             s = tw.getString(TAG_TWEET_TEXT);
             holder.description.setText(s);
+/*
+            user = tw.getJSONObject(TAG_TWEET_USER);
             holder.link_type.setText("T");
             holder.elapsed_time.setText("? h ago");
             s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
             holder.profile_name.setText("@" + s);
             s = user.getString(TAG_TWEET_USER_IMAGE_URL);
             Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
+*/
             medias = entities.getJSONArray(TAG_TWEET_MEDIA);
             if (medias.length() > 0) {
                 media = medias.getJSONObject(0);
@@ -163,23 +184,6 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         }
     }
 
-    private void do_link_user_info(JSONObject link, ViewHolder holder) {
-        String s;
-        try {
-            JSONObject user = link.getJSONObject(TAG_LINKUSER);
-            s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
-            holder.profile_name.setText("@" + s);
-            holder.link_type.setText("L");
-            holder.elapsed_time.setText("? h ago");
-            s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
-            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
-
-        }
-        catch (JSONException e) {
-            handle_link_parse_exception(e);
-        }
-
-    }
     private void do_linkdata_info(JSONObject link, ViewHolder holder, String kind) {
         String s;
         try {
