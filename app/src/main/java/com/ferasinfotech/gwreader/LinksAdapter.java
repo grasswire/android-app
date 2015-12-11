@@ -142,7 +142,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
             holder.profile_name.setText("@" + s);
             s = user.getString(TAG_TWEET_USER_IMAGE_URL);
-            Picasso.with(mContext).load(s).into(holder.profile_image);
+            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
             medias = entities.getJSONArray(TAG_TWEET_MEDIA);
             if (medias.length() > 0) {
                 media = medias.getJSONObject(0);
@@ -166,7 +166,8 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.link_type.setText("L");
             holder.elapsed_time.setText("? h ago");
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
-            Picasso.with(mContext).load(s).into(holder.profile_image);
+            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
+
         }
         catch (JSONException e) {
             handle_link_parse_exception(e);
