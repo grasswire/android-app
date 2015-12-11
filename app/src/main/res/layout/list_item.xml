@@ -52,10 +52,10 @@
         android:layout_height="wrap_content" />
 
     <ImageView android:id="@id/link_image"
-        android:layout_height="320dp"
-        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:layout_gravity="center_horizontal"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerInside" />
 
     <TextView android:id="@id/link_description"
         android:textSize="18sp"

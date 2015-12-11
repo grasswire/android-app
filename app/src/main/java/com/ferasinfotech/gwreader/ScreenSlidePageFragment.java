@@ -214,8 +214,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         LayoutParams params = mlayout.getLayoutParams();
         params.height = mScreenHeight / 2;
 
-        //Picasso.with(getLity()).setLoggingEnabled(true);
-        //Picasso.with(getActivity()).setIndicatorsEnabled(true);
+//      Picasso.with(getActivity()).setLoggingEnabled(true);
+//      Picasso.with(getActivity()).setIndicatorsEnabled(true);
         Picasso.with(getActivity()).load(mCoverPhoto).into(picassoTarget);
 
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
