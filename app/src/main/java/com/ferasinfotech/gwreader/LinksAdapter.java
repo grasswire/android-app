@@ -104,7 +104,6 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
         public ViewHolder create(View vi) {
             ViewHolder holder;
-            ViewGroup.LayoutParams params;
 
             holder = new ViewHolder();
             holder.profile_image = (ImageView) vi.findViewById(R.id.link_profile_image);
@@ -132,6 +131,8 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
         Log.d("***DEBUG***", "doing tweet link");
         try {
+            Boolean no_image = true;
+
             tw = link.getJSONObject(TAG_LINK_TWEET);
             user = tw.getJSONObject(TAG_TWEET_USER);
             entities = tw.getJSONObject(TAG_TWEET_ENTITIES);
@@ -149,7 +150,12 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
                 s = media.getString(TAG_TWEET_MEDIA_URL);
                 if (s.length() > 0) {
                     Picasso.with(mContext).load(s).into(holder.image);
+                    no_image = false;
                 }
+            }
+            if (no_image) {
+                ViewGroup.LayoutParams params = holder.image.getLayoutParams();
+                params.height = params.height / 10;
             }
         }
         catch (JSONException e) {
@@ -177,6 +183,8 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private void do_linkdata_info(JSONObject link, ViewHolder holder, String kind) {
         String s;
         try {
+            Boolean no_image = true;
+
             do_link_user_info(link, holder);
             JSONObject link_data = link.getJSONObject(TAG_LINKDATA);
             s = link_data.getString(TAG_LINKDATA_TITLE);
@@ -188,6 +196,11 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = link_data.getString(TAG_LINKDATA_THUMBNAIL);
             if (s.length() > 0) {
                 Picasso.with(mContext).load(s).into(holder.image);
+                no_image = false;
+            }
+            if (no_image) {
+                ViewGroup.LayoutParams params = holder.image.getLayoutParams();
+                params.height = params.height / 10;
             }
         }
         catch (JSONException e) {
