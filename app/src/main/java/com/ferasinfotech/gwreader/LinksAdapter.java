@@ -30,6 +30,8 @@ import org.json.JSONObject;
  */
 public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
+    // tag string constants for decoding JSON data
+
     private static final String TAG_LINKS = "links";
     private static final String TAG_LINKDATA = "linkData";
     private static final String TAG_LINKUSER = "user";
@@ -48,10 +50,18 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private static final String TAG_TWEET_MEDIA = "media";
     private static final String TAG_TWEET_MEDIA_URL = "media_url";
 
+    // Unicode string constants that map to FONT AWESOME symbols
+
+    String PLAIN_LINK = "\uf0c1";
+    String VIDEO_LINK = "\uf03d";
+    String TWEET_LINK = "\uf099";
+
+
+    // Private data to the Links Adapter class
+
     private Activity  mActivity;
     private Context   mContext;
     private JSONArray mLinks;
-
     private static    LayoutInflater sInflator = null;
 
     public LinksAdapter(Activity a, String json_story_string) {
@@ -113,6 +123,8 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.title = (TextView) vi.findViewById(R.id.link_title);
             holder.image = (ImageView) vi.findViewById(R.id.link_image);
             holder.description = (TextView)vi.findViewById(R.id.link_description);
+
+            holder.link_type.setTypeface(FontManager.getTypeface(mContext, FontManager.FONTAWESOME));
             return holder;
         }
     }
@@ -121,13 +133,13 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         Log.d("***DEBUG***", "JSON parse error on links");
     }
 
-    private void do_link_user_info(JSONObject link, ViewHolder holder) {
+    private void do_link_user_info(JSONObject link, ViewHolder holder, String link_kind) {
         String s;
         try {
             JSONObject user = link.getJSONObject(TAG_LINKUSER);
             s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
             holder.profile_name.setText("@" + s);
-            holder.link_type.setText("L");
+            holder.link_type.setText(link_kind);
             holder.elapsed_time.setText("? h ago");
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
             Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
@@ -152,19 +164,10 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             Boolean no_image = true;
 
             tw = link.getJSONObject(TAG_LINK_TWEET);
-            do_link_user_info(link, holder);
+            do_link_user_info(link, holder, TWEET_LINK);
             entities = tw.getJSONObject(TAG_TWEET_ENTITIES);
             s = tw.getString(TAG_TWEET_TEXT);
             holder.description.setText(s);
-/*
-            user = tw.getJSONObject(TAG_TWEET_USER);
-            holder.link_type.setText("T");
-            holder.elapsed_time.setText("? h ago");
-            s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
-            holder.profile_name.setText("@" + s);
-            s = user.getString(TAG_TWEET_USER_IMAGE_URL);
-            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
-*/
             medias = entities.getJSONArray(TAG_TWEET_MEDIA);
             if (medias.length() > 0) {
                 media = medias.getJSONObject(0);
@@ -189,7 +192,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         try {
             Boolean no_image = true;
 
-            do_link_user_info(link, holder);
+            do_link_user_info(link, holder, kind);
             JSONObject link_data = link.getJSONObject(TAG_LINKDATA);
             s = link_data.getString(TAG_LINKDATA_TITLE);
             holder.title.setText(s);
@@ -214,12 +217,12 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
 
     private void do_plain_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing plain link");
-        do_linkdata_info(link, holder, "L");
+        do_linkdata_info(link, holder, PLAIN_LINK);
     }
 
     private void do_video_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing video link");
-        do_linkdata_info(link, holder, "V");
+        do_linkdata_info(link, holder, VIDEO_LINK);
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {

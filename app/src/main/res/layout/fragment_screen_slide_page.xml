@@ -49,7 +49,7 @@
             android:background="@color/headline_background_color"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:padding="15dp"
             android:layout_below="@id/story_title" />
 
         <TextView android:id="@id/story_summary"
