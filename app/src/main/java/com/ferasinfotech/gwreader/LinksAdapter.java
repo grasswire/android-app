@@ -176,7 +176,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             }
             if (no_image) {
                 ViewGroup.LayoutParams params = holder.image.getLayoutParams();
-                params.height = params.height / 10;
+                params.height = 0;
             }
         }
         catch (JSONException e) {
@@ -204,7 +204,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             }
             if (no_image) {
                 ViewGroup.LayoutParams params = holder.image.getLayoutParams();
-                params.height = params.height / 10;
+                params.height = 0;
             }
         }
         catch (JSONException e) {
