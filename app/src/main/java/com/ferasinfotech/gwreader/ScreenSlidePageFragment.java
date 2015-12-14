@@ -16,6 +16,8 @@
 
 package com.ferasinfotech.gwreader;
 
+import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -121,7 +123,14 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         @Override
         public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-            mlayout.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
+            Context context = getContext();
+
+            if (context != null) {
+                mlayout.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
+            }
+            else {
+                Log.d("Picasso Image:", "Context problem!!!!!!!!!!!!:" + mCoverPhoto);
+            }
             //Log.d("Picasso Image:", "Render Complete:" + mCoverPhoto);
         }
 
