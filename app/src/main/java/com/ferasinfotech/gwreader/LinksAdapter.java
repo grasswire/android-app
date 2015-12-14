@@ -140,7 +140,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
             holder.profile_name.setText("@" + s);
             holder.link_type.setText(link_kind);
-            holder.elapsed_time.setText("? h ago");
+            holder.elapsed_time.setText("");
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
             Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
 
@@ -199,7 +199,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             s = link_data.getString(TAG_LINKDATA_DESCRIPTION);
             holder.description.setText(s);
             holder.link_type.setText(kind);
-            holder.elapsed_time.setText("? h ago");
+            holder.elapsed_time.setText("");
             s = link_data.getString(TAG_LINKDATA_THUMBNAIL);
             if (s.length() > 0) {
                 Picasso.with(mContext).load(s).into(holder.image);
