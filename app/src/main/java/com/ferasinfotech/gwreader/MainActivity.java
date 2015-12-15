@@ -48,11 +48,6 @@ public class MainActivity extends FragmentActivity {
      */
     private ViewPager mPager;
 
-    /**
-     * Size of the cover photo in pixel
-     */
-    private int mScreenHeight;
-
     JSONArray mStories = null;
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
@@ -60,10 +55,6 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        mScreenHeight = metrics.heightPixels;
 
         new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
     }
@@ -134,12 +125,10 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, mNumPages, mScreenHeight,
-                        mStories.getJSONObject(position));
+                return ScreenSlidePageFragment.create(position, mNumPages, mStories.getJSONObject(position));
             }
             catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, mNumPages, mScreenHeight,
-                        "JSON parsing problem");
+                return ScreenSlidePageFragment.create(position, mNumPages, "JSON parsing problem");
             }
         }
 

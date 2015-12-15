@@ -16,13 +16,6 @@
 
 package com.ferasinfotech.gwreader;
 
-import android.content.Context;
-
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import com.squareup.picasso.Target;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,13 +28,13 @@ import android.widget.ListView;
 
 import android.view.ViewGroup.LayoutParams;
 
+import android.widget.ImageView;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Picasso.LoadedFrom;
 
 /**
  * The ScreenSlidePageFragment class to represents a single page in the sliding display of pages.
@@ -65,7 +58,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_HEADLINE = "headline";
     public static final String ARG_SUMMARY = "summary";
     public static final String ARG_COVER_PHOTO = "coverPhoto";
-    public static final String ARG_COVER_PHOTO_HEIGHT = "coverPhotoHeight";
     public static final String ARG_STORY_STRING = "storyString";
 
     private static final String TAG_NAME = "name";
@@ -94,12 +86,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mHeadline;
 
     /**
-     * The fragment's Layout, saved so the async task can set it's background after fetching
-     * the image.
-     */
-    private RelativeLayout mlayout;
-
-    /**
      * The fragment's URL for the cover photo, which is set to the argument value for {@link #ARG_COVER_PHOTO}
      */
     private String mCoverPhoto;
@@ -110,46 +96,9 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mStoryString;
 
     /**
-     * The size of the cover photo relative layout, which is set to the argument
-     * value {@link #ARG_COVER_PHOTO_HEIGHT}
-     */
-    private int mScreenHeight;
-
-
-    /**
-     * Target object for caching of Picasso
-     */
-    private Target picassoTarget = new Target(){
-
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-            Context context = getContext();
-
-            if (context != null) {
-                mlayout.setBackgroundDrawable(new BitmapDrawable(getContext().getResources(), bitmap));
-            }
-            else {
-                Log.d("Picasso Image:", "Context problem!!!!!!!!!!!!:" + mCoverPhoto);
-            }
-            //Log.d("Picasso Image:", "Render Complete:" + mCoverPhoto);
-        }
-
-        @Override
-        public void onBitmapFailed(final Drawable errorDrawable) {
-            Log.d("Picasso Image:", "Load FAILED:" + mCoverPhoto);
-        }
-
-        @Override
-        public void onPrepareLoad(final Drawable placeHolderDrawable) {
-            //Log.d("Picasso Image Load:", "Prepare Load:" + mCoverPhoto);
-        }
-    };
-
-    /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages,
-                                                 int cover_photo_height, JSONObject story) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject story) {
         String name = "";
         String summary = "";
         String headline = "";
@@ -174,7 +123,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, summary);
         args.putString(ARG_HEADLINE, headline);
         args.putString(ARG_COVER_PHOTO, cover_photo_url);
-        args.putInt(ARG_COVER_PHOTO_HEIGHT, cover_photo_height);
         args.putString(ARG_STORY_STRING, story_string);
         fragment.setArguments(args);
         return fragment;
@@ -184,8 +132,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
      *  with page title given as a string parameter without a JSON object containing details.
      *  (used to construct and empty page when a JSON parsing error of a story occurs)
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages,
-                                                 int cover_photo_height, String story_title) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, String story_title) {
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
@@ -194,7 +141,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         args.putString(ARG_SUMMARY, "");
         args.putString(ARG_HEADLINE, "");
         args.putString(ARG_COVER_PHOTO, "");
-        args.putInt(ARG_COVER_PHOTO_HEIGHT, cover_photo_height);
         args.putString(ARG_STORY_STRING, "");
         fragment.setArguments(args);
         return fragment;
@@ -208,7 +154,6 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
         mCoverPhoto = getArguments().getString(ARG_COVER_PHOTO);
-        mScreenHeight = getArguments().getInt(ARG_COVER_PHOTO_HEIGHT);
         mStoryString = getArguments().getString(ARG_STORY_STRING);
     }
 
@@ -219,13 +164,11 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
 
-        mlayout = (RelativeLayout) rootView.findViewById(R.id.story_image_overlay_layout);
-        LayoutParams params = mlayout.getLayoutParams();
-        params.height = mScreenHeight / 2;
 
 //      Picasso.with(getActivity()).setLoggingEnabled(true);
 //      Picasso.with(getActivity()).setIndicatorsEnabled(true);
-        Picasso.with(getActivity()).load(mCoverPhoto).into(picassoTarget);
+        ImageView mimage = (ImageView) rootView.findViewById(R.id.story_image);
+        Picasso.with(getActivity()).load(mCoverPhoto).into(mimage);
 
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
         ((TextView) rootView.findViewById(R.id.story_headline)).setText(mHeadline);

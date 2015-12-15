@@ -26,9 +26,15 @@
         android:orientation="vertical">
 
         <RelativeLayout android:id="@id/story_image_overlay_layout"
-            android:background="@drawable/gw_placeholder"
             android:layout_width="match_parent"
-            android:layout_height="10dp">
+            android:layout_height="wrap_content">
+
+            <ImageView android:id="@id/story_image"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:scaleType="fitXY" />
 
             <TextView android:id="@id/story_title"
                 style="?android:textAppearanceMedium"
@@ -39,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="15dp"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true" />
 
         </RelativeLayout>
