@@ -61,6 +61,8 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
     String VIDEO_LINK = "\uf03d";
     String TWEET_LINK = "\uf099";
 
+    String PLAY_ICON = "\uf04b";
+
 
     // Private data to the Links Adapter class
 
@@ -117,6 +119,7 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
         public TextView profile_name;
         public TextView elapsed_time;
         public String target_url;
+        public TextView play_icon;
 
         public ViewHolder create(View vi) {
             ViewHolder holder;
@@ -128,10 +131,14 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
             holder.elapsed_time = (TextView) vi.findViewById(R.id.link_elapsed_time);
             holder.title = (TextView) vi.findViewById(R.id.link_title);
             holder.image = (ImageView) vi.findViewById(R.id.link_image);
-            holder.description = (TextView)vi.findViewById(R.id.link_description);
+            holder.description = (TextView) vi.findViewById(R.id.link_description);
+            holder.play_icon = (TextView)vi.findViewById(R.id.link_image_play_icon);
 
             holder.link_type.setTypeface(FontManager.getTypeface(mContext, FontManager.FONTAWESOME));
+            holder.play_icon.setTypeface(FontManager.getTypeface(mContext, FontManager.FONTAWESOME));
             holder.target_url = "";
+            holder.elapsed_time.setText("");
+            holder.play_icon.setText("");
             return holder;
         }
     }
@@ -147,7 +154,6 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
             s = user.getString(TAG_LINKUSER_TWITTER_SCREEN_NAME);
             holder.profile_name.setText("@" + s);
             holder.link_type.setText(link_kind);
-            holder.elapsed_time.setText("");
             s = user.getString(TAG_LINKUSER_PROFILE_IMAGE_URL);
             Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
 
@@ -197,7 +203,6 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
             Log.d("***DEBUG***", "set target url:" + holder.target_url);
             holder.profile_name.setText("@" + s);
             holder.link_type.setText(TWEET_LINK);
-            holder.elapsed_time.setText("");
             s = user.getString(TAG_TWEET_USER_PROFILE_IMAGE_URL_HTTPS);
             Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
 
@@ -224,6 +229,9 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
             if (s.length() > 0) {
                 Picasso.with(mContext).load(s).into(holder.image);
                 no_image = false;
+                if (kind == VIDEO_LINK) {
+                    holder.play_icon.setText(PLAY_ICON);
+                }
             }
             if (no_image) {
                 ViewGroup.LayoutParams params = holder.image.getLayoutParams();

@@ -54,12 +54,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <ImageView android:id="@id/link_image"
-        android:src="@drawable/gw_placeholder"
-        android:layout_height="240dp"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:scaleType="fitCenter" />
+        android:layout_height="wrap_content">
+
+        <ImageView android:id="@id/link_image"
+            android:src="@drawable/gw_placeholder"
+            android:layout_height="240dp"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitCenter" />
+
+        <TextView android:id="@id/link_image_play_icon"
+            style="?android:textAppearanceMedium"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:textColor="@color/title_foreground_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+    </RelativeLayout>
+
 
     <TextView android:id="@id/link_description"
         android:textSize="18sp"

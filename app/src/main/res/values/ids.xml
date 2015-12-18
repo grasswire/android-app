@@ -16,7 +16,6 @@
 
 <resources>
     <item type="id" name="story_layout" />
-    <item type="id" name="story_image_overlay_layout" />
     <item type="id" name="story_image" />
     <item type="id" name="story_title" />
     <item type="id" name="story_summary" />
@@ -24,6 +23,7 @@
     <item type="id" name="link_title" />
     <item type="id" name="link_description" />
     <item type="id" name="link_image" />
+    <item type="id" name="link_image_play_icon" />
     <item type="id" name="link_profile_image" />
     <item type="id" name="link_profile_name" />
     <item type="id" name="link_elapsed_time" />
