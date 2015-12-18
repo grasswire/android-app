@@ -8,6 +8,9 @@ import android.view.View;
 import android.view.View.*;
 import android.view.LayoutInflater;
 
+import android.content.Intent;
+import android.net.Uri;
+
 import android.widget.TextView;
 import android.widget.ImageView;
 
@@ -28,7 +31,7 @@ import org.json.JSONObject;
  * the GrassWire API server, and it parses that link to construct an appropriate list item.  The
  * link could be a tweet, a plain link, or a video link.
  */
-public class LinksAdapter extends BaseAdapter implements OnClickListener {
+public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
 
     // tag string constants for decoding JSON data
 
@@ -40,12 +43,14 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     private static final String TAG_LINKDATA_TITLE = "title";
     private static final String TAG_LINKDATA_DESCRIPTION = "description";
     private static final String TAG_LINKDATA_THUMBNAIL = "thumbnail";
+    private static final String TAG_LINKDATA_URL = "url";
     private static final String TAG_LINK_TYPE = "type";
     private static final String TAG_LINK_TWEET = "tweet";
+    private static final String TAG_TWEET_ID_STR = "id_str";
     private static final String TAG_TWEET_TEXT = "text";
     private static final String TAG_TWEET_USER = "user";
     private static final String TAG_TWEET_USER_SCREEN_NAME = "screen_name";
-    private static final String TAG_TWEET_USER_IMAGE_URL = "profile_image_url";
+    private static final String TAG_TWEET_USER_PROFILE_IMAGE_URL_HTTPS = "profile_image_url_https";
     private static final String TAG_TWEET_ENTITIES = "entities";
     private static final String TAG_TWEET_MEDIA = "media";
     private static final String TAG_TWEET_MEDIA_URL = "media_url";
@@ -111,6 +116,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         public ImageView profile_image;
         public TextView profile_name;
         public TextView elapsed_time;
+        public String target_url;
 
         public ViewHolder create(View vi) {
             ViewHolder holder;
@@ -125,6 +131,7 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             holder.description = (TextView)vi.findViewById(R.id.link_description);
 
             holder.link_type.setTypeface(FontManager.getTypeface(mContext, FontManager.FONTAWESOME));
+            holder.target_url = "";
             return holder;
         }
     }
@@ -152,11 +159,12 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
     }
 
     private void do_tweet_link(JSONObject link, ViewHolder holder) {
-        String s;
+        String     s;
+        String     tweet_id;
         JSONObject tw;
         JSONObject user;
         JSONObject entities;
-        JSONArray medias;
+        JSONArray  medias;
         JSONObject media;
 
         Log.d("***DEBUG***", "doing tweet link");
@@ -164,7 +172,6 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
             Boolean no_image = true;
 
             tw = link.getJSONObject(TAG_LINK_TWEET);
-            do_link_user_info(link, holder, TWEET_LINK);
             entities = tw.getJSONObject(TAG_TWEET_ENTITIES);
             s = tw.getString(TAG_TWEET_TEXT);
             holder.description.setText(s);
@@ -177,10 +184,23 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
                     no_image = false;
                 }
             }
+
             if (no_image) {
                 ViewGroup.LayoutParams params = holder.image.getLayoutParams();
                 params.height = 0;
             }
+
+            tweet_id = tw.getString(TAG_TWEET_ID_STR);
+            user = tw.getJSONObject(TAG_TWEET_USER);
+            s = user.getString(TAG_TWEET_USER_SCREEN_NAME);
+            holder.target_url = "https://twitter.com/" + s + "/status/" + tweet_id;
+            Log.d("***DEBUG***", "set target url:" + holder.target_url);
+            holder.profile_name.setText("@" + s);
+            holder.link_type.setText(TWEET_LINK);
+            holder.elapsed_time.setText("");
+            s = user.getString(TAG_TWEET_USER_PROFILE_IMAGE_URL_HTTPS);
+            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
+
         }
         catch (JSONException e) {
             handle_link_parse_exception(e);
@@ -209,6 +229,8 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
                 ViewGroup.LayoutParams params = holder.image.getLayoutParams();
                 params.height = 0;
             }
+            holder.target_url = link_data.getString(TAG_LINKDATA_URL);
+            Log.d("***DEBUG***", "set target url:" + holder.target_url);
         }
         catch (JSONException e) {
             handle_link_parse_exception(e);
@@ -229,15 +251,32 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         View vi = convertView;
         ViewHolder holder;
 
+        OnClickListener click_listener = new OnClickListener() {
+            public void onClick(View v) {
+                ViewHolder holder = (ViewHolder) v.getTag();
+                String s = holder.target_url;
+
+                if (s.length() > 0) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(s));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                    Log.d("***DEBUG***", "Launching activity");
+                }
+                else {
+                    Log.d("***DEBUG***", "Row clicked but no launch");
+                }
+            }
+        };
+
         if (vi == null) {
             vi = sInflator.inflate(R.layout.list_item, null);
             holder = new ViewHolder().create(vi);
             vi.setTag(holder);
-            Log.d("***DEBUG***", "Creating listitem for position:" + position);
+            vi.setOnClickListener(click_listener);
         }
         else {
             holder = (ViewHolder) vi.getTag();
-            Log.d("***DEBUG***", "Finding listitem for position:" + position);
         }
 
         if (mLinks.length() == 0) {
@@ -266,10 +305,4 @@ public class LinksAdapter extends BaseAdapter implements OnClickListener {
         }
         return vi;
     }
-
-    @Override
-    public void onClick(View v) {
-        Log.v("CustomAdapter", "=====Row button clicked=====");
-    }
-
 }
