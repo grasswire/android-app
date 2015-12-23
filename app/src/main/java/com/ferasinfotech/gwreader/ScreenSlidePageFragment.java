@@ -16,6 +16,8 @@
 
 package com.ferasinfotech.gwreader;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,11 +61,14 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public static final String ARG_SUMMARY = "summary";
     public static final String ARG_COVER_PHOTO = "coverPhoto";
     public static final String ARG_STORY_STRING = "storyString";
+    public static final String ARG_STORY_ID = "storyID";
 
+    private static final String TAG_STORY_ID = "id";
     private static final String TAG_NAME = "name";
     private static final String TAG_SUMMARY = "summary";
     private static final String TAG_HEADLINE = "headline";
     private static final String TAG_COVER_PHOTO = "coverPhoto";
+    private static final String TAG_CREATEDAT = "createdAt";
 
     /**
      * The fragment's page number, which is set to the argument value for {@link #ARG_PAGE}.
@@ -91,6 +96,11 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mCoverPhoto;
 
     /**
+     * The fragment's Story ID string, expressed as a Int converted from the Story's JSONarray
+     */
+    private int mStoryID;
+
+    /**
      * The fragment's list of Story JSON string, expressed as a String converted from the Story's JSONarray
      */
     private String mStoryString;
@@ -98,28 +108,54 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     /**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject story) {
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject storyOrResponse) {
+        int    story_id = -1;
         String name = "";
         String summary = "";
         String headline = "";
         String cover_photo_url = "";
         String story_string = "";
+        long createdAt;
 
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
-        try {
-            name = story.getString(TAG_NAME);
-            summary = story.getString(TAG_SUMMARY);
-            headline = story.getString(TAG_HEADLINE);
-            cover_photo_url = story.getString(TAG_COVER_PHOTO);
-            story_string = story.toString();
+        if (pageNumber == 0) {
+
+            // doing help page.. JSONobject parameter is server reponse
+
+            try {
+                 createdAt = storyOrResponse.getLong(TAG_CREATEDAT);
+            }
+            catch (JSONException e) {
+                createdAt = 0;
+            }
+            story_id = 0;
+            name = "Help";
+            summary = "This the help text.. fill in specifics later.. Date:"
+                    + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm");
+
+            headline = "GWreader Usage";
+            cover_photo_url = "android.resource://com.ferasinfotech.gwreader/" + R.drawable.gw_splash;
         }
-        catch  (JSONException e) {
-            name = "Unknown";
+        else {
+
+            // doing a story page, JSONobject parameter is the story data
+
+            try {
+                story_id = storyOrResponse.getInt(TAG_STORY_ID);
+                name = storyOrResponse.getString(TAG_NAME)  + " (" + pageNumber + "/" + numPages + ")";
+                summary = storyOrResponse.getString(TAG_SUMMARY);
+                headline = storyOrResponse.getString(TAG_HEADLINE);
+                cover_photo_url = storyOrResponse.getString(TAG_COVER_PHOTO);
+                story_string = storyOrResponse.toString();
+            } catch (JSONException e) {
+                name = "Unknown";
+            }
         }
 
         args.putInt(ARG_PAGE, pageNumber);
-        args.putString(ARG_TITLE, name + " (" + (pageNumber + 1) + "/" + numPages + ")");
+        args.putInt(ARG_STORY_ID, story_id);
+        args.putString(ARG_TITLE, name);
         args.putString(ARG_SUMMARY, summary);
         args.putString(ARG_HEADLINE, headline);
         args.putString(ARG_COVER_PHOTO, cover_photo_url);
@@ -137,6 +173,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, pageNumber);
+        args.putInt(ARG_STORY_ID, 0);
         args.putString(ARG_TITLE, story_title + " (" + (pageNumber + 1) + "/" + numPages + ")");
         args.putString(ARG_SUMMARY, "");
         args.putString(ARG_HEADLINE, "");
@@ -150,6 +187,7 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPageNumber = getArguments().getInt(ARG_PAGE);
+        mStoryID = getArguments().getInt(ARG_STORY_ID);
         mTitle = " " + getArguments().getString(ARG_TITLE) + " ";
         mSummary = getArguments().getString(ARG_SUMMARY);
         mHeadline = getArguments().getString(ARG_HEADLINE);
@@ -157,9 +195,20 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         mStoryString = getArguments().getString(ARG_STORY_STRING);
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View.OnLongClickListener click_listener = new View.OnLongClickListener() {
+            public boolean onLongClick(View v) {
+                String s = "https://www.grasswire.com/story/" + mStoryID + "/x";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(s));
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+
+                return true;
+            }
+        };
 
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_screen_slide_page, container, false);
@@ -170,17 +219,22 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         ImageView mimage = (ImageView) rootView.findViewById(R.id.story_image);
         Picasso.with(getActivity()).load(mCoverPhoto).into(mimage);
 
+        mimage.setOnLongClickListener(click_listener);
+
+
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
         ((TextView) rootView.findViewById(R.id.story_headline)).setText(mHeadline);
         ((TextView) rootView.findViewById(R.id.story_summary)).setText(mSummary);
 
         Log.d("***DEBUG***", "Building page:" + mPageNumber);
 
-        LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
-        LinearLayout ll = (LinearLayout) rootView.findViewById(R.id.story_layout);
-        for (int i = 0; i < adapter.getCount(); i++) {
-            View listItem = adapter.getView(i, null, ll);
-            ll.addView(listItem);
+        if (mStoryID != 0) {
+            LinksAdapter adapter = new LinksAdapter(getActivity(), mStoryString);
+            LinearLayout ll = (LinearLayout) rootView.findViewById(R.id.story_layout);
+            for (int i = 0; i < adapter.getCount(); i++) {
+                View listItem = adapter.getView(i, null, ll);
+                ll.addView(listItem);
+            }
         }
 
         return rootView;

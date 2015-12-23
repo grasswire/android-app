@@ -11,8 +11,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
-import android.util.DisplayMetrics;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +33,6 @@ import org.json.JSONObject;
 public class MainActivity extends FragmentActivity {
 
     private static final String TAG_STORIES = "stories";
-    private static final String TAG_CREATEDAT = "createdAt";
 
     /**
      * The number of pages (wizard steps) to show in this demo.
@@ -47,6 +44,8 @@ public class MainActivity extends FragmentActivity {
      * and next wizard steps.
      */
     private ViewPager mPager;
+
+    JSONObject mResponse = null;
 
     JSONArray mStories = null;
 
@@ -62,7 +61,7 @@ public class MainActivity extends FragmentActivity {
     /** Back key handling on sliding pages */
     @Override
     public void onBackPressed() {
-        if (mPager.getCurrentItem() == 0) {
+        if (mPager.getCurrentItem() <= 1) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
             super.onBackPressed();
@@ -80,13 +79,11 @@ public class MainActivity extends FragmentActivity {
 
         if (json_str != null) {
             try {
-                JSONObject jsonObj = new JSONObject(json_str);
-                long createdAt = jsonObj.getLong(TAG_CREATEDAT);
-
-                mStories = jsonObj.getJSONArray(TAG_STORIES);
+                mResponse = new JSONObject(json_str);
+                mStories = mResponse.getJSONArray(TAG_STORIES);
 
                 mNumPages = mStories.length();
-                Toast.makeText(getApplicationContext(), "Digest created:" + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm"),
+                Toast.makeText(getApplicationContext(), "Swipe right for more stories, left for Help",
                         Toast.LENGTH_LONG).show();
 
                 //Toast.makeText(getApplicationContext(), "cover size:" + mCoverPhotoSize, Toast.LENGTH_LONG).show();
@@ -106,6 +103,7 @@ public class MainActivity extends FragmentActivity {
                         // Toast.makeText(getApplicationContext(), "Page " + position, Toast.LENGTH_SHORT).show();
                     }
                 });
+                mPager.setCurrentItem(1);
             }
             catch  (JSONException e) {
                 Toast.makeText(getApplicationContext(), "JSON parsing exception", Toast.LENGTH_LONG).show();
@@ -125,7 +123,12 @@ public class MainActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             try {
-                return ScreenSlidePageFragment.create(position, mNumPages, mStories.getJSONObject(position));
+                if (position == 0) {
+                    return ScreenSlidePageFragment.create(position, mNumPages, mResponse);
+                }
+                else {
+                    return ScreenSlidePageFragment.create(position, mNumPages, mStories.getJSONObject(position - 1));
+                }
             }
             catch  (JSONException e) {
                 return ScreenSlidePageFragment.create(position, mNumPages, "JSON parsing problem");
@@ -134,7 +137,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return mNumPages;
+            return mNumPages+1;
         }
     }
 
