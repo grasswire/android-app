@@ -130,12 +130,14 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
                 createdAt = 0;
             }
             story_id = 0;
-            name = "Help";
-            summary = "This the help text.. fill in specifics later.. Date:"
-                    + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm");
-
-            headline = "GWreader Usage";
+            name = "Grasswire Help";
+            headline = "Usage Instructions";
             cover_photo_url = "android.resource://com.ferasinfotech.gwreader/" + R.drawable.gw_splash;
+            summary = "Swipe right and left to read each story.\n\n"
+                    + "Tap on news items within stories and you'll be able to follow web links, view tweets via the Twitter app, or watch videos.\n\n"
+                    + "A long press on a story's cover photo will launch the device browser to view or edit the story on the Grasswire mobile site.\n\n"
+                    + "A long press on the image above will launch the Grasswire main page.\n\n"
+                    + "New Feed Date:" + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm") + "\n\n";
         }
         else {
 
@@ -200,8 +202,12 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
         View.OnLongClickListener click_listener = new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
-                String s = "https://www.grasswire.com/story/" + mStoryID + "/x";
                 Intent i = new Intent(Intent.ACTION_VIEW);
+                String s = "https://www.grasswire.com";
+
+                if (mStoryID != 0) {
+                    s = s + "/story/" + mStoryID + "/x";
+                }
                 i.setData(Uri.parse(s));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -216,10 +222,10 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
 
 //      Picasso.with(getActivity()).setLoggingEnabled(true);
 //      Picasso.with(getActivity()).setIndicatorsEnabled(true);
-        ImageView mimage = (ImageView) rootView.findViewById(R.id.story_image);
-        Picasso.with(getActivity()).load(mCoverPhoto).into(mimage);
+        ImageView cover_image = (ImageView) rootView.findViewById(R.id.story_image);
+        Picasso.with(getActivity()).load(mCoverPhoto).into(cover_image);
 
-        mimage.setOnLongClickListener(click_listener);
+        cover_image.setOnLongClickListener(click_listener);
 
 
         ((TextView) rootView.findViewById(R.id.story_title)).setText(mTitle);
