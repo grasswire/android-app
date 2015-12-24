@@ -132,12 +132,14 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
             story_id = 0;
             name = "Grasswire Help";
             headline = "Usage Instructions";
-            cover_photo_url = "android.resource://com.ferasinfotech.gwreader/" + R.drawable.gw_splash;
+            cover_photo_url = "android.resource://com.ferasinfotech.gwreader/" + R.drawable.gw_logo;
             summary = "Swipe right and left to read each story.\n\n"
-                    + "Tap on news items within stories and you'll be able to follow web links, view tweets via the Twitter app, or watch videos.\n\n"
+                    + "Scroll down to read facts and associated news items (tweets and links) for each story.\n\n"
+                    + "Tap on a news items within a story and you'll be able to follow web links, view tweets via the Twitter app, or watch videos.\n\n"
                     + "A long press on a story's cover photo will launch the device browser to view or edit the story on the Grasswire mobile site.\n\n"
                     + "A long press on the image above will launch the Grasswire main page.\n\n"
-                    + "New Feed Date:" + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm") + "\n\n";
+                    + "News Feed Date: " + Utility.getDate(createdAt, "MM/dd/yyyy hh:mm") + "\n\n"
+                    + "App Version: " + BuildConfig.VERSION_NAME + "\n\n";
         }
         else {
 
