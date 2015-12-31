@@ -36,6 +36,11 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+
 import com.squareup.picasso.Picasso;
 
 /**
@@ -43,7 +48,7 @@ import com.squareup.picasso.Picasso;
  *
  * It extends a class from the support library so as to be usable on older Android devices.
  *
- * It is instantiated with a single 'story' element from the array of mStories received from the
+ * It is instantiated with a single 'story' element from the array of mJsonStories received from the
  * GrassWire API server, and constructs and delivers a 'Bundle' of the story parameters to populate
  * its 'View' with a variety of data from the story.
  *
@@ -106,7 +111,8 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
     private String mStoryString;
 
     /**
-     * Factory method for this fragment class. Constructs a new fragment for the given page number.
+     * Factory method for this fragment class. Constructs a new fragment for the given page number,
+     * and JSON story object.
      */
     public static ScreenSlidePageFragment create(int pageNumber, int numPages, JSONObject storyOrResponse) {
         int    story_id = -1;
@@ -167,6 +173,69 @@ public class ScreenSlidePageFragment extends android.support.v4.app.Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+    /**
+     * Alternate Factory method for this fragment class. Constructs a new fragment for the given page number,
+     * and HTML story element.
+     */
+    public static ScreenSlidePageFragment create(int pageNumber, int numPages, org.jsoup.nodes.Element story) {
+        int    story_id = -1;
+        String name = "";
+        String summary = "";
+        String headline = "";
+        String cover_photo_url = "";
+        String story_string = "";
+        long createdAt;
+
+        ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
+        Bundle args = new Bundle();
+        if (pageNumber == 0) {
+            story_id = 0;
+            name = "Grasswire Help";
+            headline = "Usage Instructions";
+            cover_photo_url = "android.resource://com.ferasinfotech.gwreader/" + R.drawable.gw_logo;
+            summary = "Swipe right and left to read each story.\n\n"
+                    + "Scroll down to read facts and associated news items (tweets and links) for each story.\n\n"
+                    + "Tap on a news items within a story and you'll be able to follow web links, view tweets via the Twitter app, or watch videos.\n\n"
+                    + "A long press on a story's cover photo will launch the device browser to view or edit the story on the Grasswire mobile site.\n\n"
+                    + "A long press on the image above will launch the Grasswire main page.\n\n"
+                    + "App Version: " + BuildConfig.VERSION_NAME + "\n\n";
+        }
+        else {
+
+            // doing a story page, Element 'story' is the story data
+
+            Elements e_list;
+            org.jsoup.nodes.Element tag;
+
+            story_id = Integer.valueOf(story.attr("data-story-id"));
+            e_list = story.getElementsByClass("feature__tag");
+            tag = e_list.get(0);
+            name = tag.text()  + " (" + pageNumber + "/" + numPages + ")";
+            e_list = story.getElementsByClass("story__summary");
+            tag = e_list.get(0);
+            summary = tag.html().replace("<br />", "\r");
+            e_list = story.getElementsByClass("feature__text");
+            tag = e_list.get(0);
+            headline = tag.text();
+            e_list = story.getElementsByClass("feature__image");
+            tag = e_list.get(0);
+            cover_photo_url = tag.attr("src");
+            story_string = story.toString();
+
+        }
+
+        args.putInt(ARG_PAGE, pageNumber);
+        args.putInt(ARG_STORY_ID, story_id);
+        args.putString(ARG_TITLE, name);
+        args.putString(ARG_SUMMARY, summary);
+        args.putString(ARG_HEADLINE, headline);
+        args.putString(ARG_COVER_PHOTO, cover_photo_url);
+        args.putString(ARG_STORY_STRING, "<html><head></head><body>" + story_string + "</body></html>");
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     /**
      * Alternate Factory method for this fragment class. Constructs a new fragment for the given page number,
      *  with page title given as a string parameter without a JSON object containing details.

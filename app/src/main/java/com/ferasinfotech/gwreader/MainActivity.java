@@ -2,6 +2,7 @@ package com.ferasinfotech.gwreader;
 
 
 import android.os.AsyncTask;
+import android.renderscript.Element;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
@@ -22,15 +23,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+
 /**
  * Main activity class for the GWreader app.
  *
- * Queries the GrassWire API server for a JSON structure of current news mStories, descriptive text,
+ * Queries the GrassWire API server for a JSON structure of current news mJsonStories, descriptive text,
  * image URLs and associated tweets, web links, and video URLs.
  *
  * The app parses the JSON and creates a "screen-slide" animation using a {@link ViewPager}.
  */
 public class MainActivity extends FragmentActivity {
+
+    private static final boolean DOING_JSON = false;
 
     private static final String TAG_STORIES = "stories";
 
@@ -40,14 +48,16 @@ public class MainActivity extends FragmentActivity {
     private int mNumPages = 0;
 
     /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
+     *
      * and next wizard steps.
      */
-    private ViewPager mPager;
+    private ViewPager mPager;        // pager widget handles animation and swiping horizontally
 
-    JSONObject mResponse = null;
+    JSONObject mJsonResponse = null; // JSON representation of web server response
+    JSONArray mJsonStories = null;   // array of story elements parsed from JSON response
 
-    JSONArray mStories = null;
+    Document mHtmlResponse = null;   // HTML document returned from web server
+    Elements mHtmlStories = null;    // HTML story elements parse from the HTML response
 
     /** Puts up the splash screen and starts the JSON fetch from the GrassWire API server */
     @Override
@@ -55,7 +65,12 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
 
-        new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
+        if (DOING_JSON) {
+            new DownloadTask().execute("https://api-prod.grasswire.com/v1/digests/current");
+        }
+        else {
+            new DownloadTask().execute("https://www.grasswire.com");
+        }
     }
 
     /** Back key handling on sliding pages */
@@ -72,42 +87,51 @@ public class MainActivity extends FragmentActivity {
     }
 
     /* Invoked upon reception of JSON data from GrassWire API - creates slideable story page fragments, 1 per story */
-    private void build_screens(String json_str) {
+    private void build_screens_from_json(String json_str) {
         PagerAdapter mPagerAdapter;
-
-        //Toast.makeText(getApplicationContext(), "density:" + logicalDensity, Toast.LENGTH_LONG).show();
 
         if (json_str != null) {
             try {
-                mResponse = new JSONObject(json_str);
-                mStories = mResponse.getJSONArray(TAG_STORIES);
+                mJsonResponse = new JSONObject(json_str);
+                mJsonStories = mJsonResponse.getJSONArray(TAG_STORIES);
 
-                mNumPages = mStories.length();
+                mNumPages = mJsonStories.length();
                 Toast.makeText(getApplicationContext(), "Swipe right for more stories, left for Help",
                         Toast.LENGTH_LONG).show();
-
-                //Toast.makeText(getApplicationContext(), "cover size:" + mCoverPhotoSize, Toast.LENGTH_LONG).show();
-
-                // Set the View, then Instantiate a ViewPager and a PagerAdapter.
                 setContentView(R.layout.activity_screen_slide);
                 mPager = (ViewPager) findViewById(R.id.pager);
                 mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
                 mPager.setAdapter(mPagerAdapter);
-                mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When changing pages, reset the action bar actions since they are dependent
-                        // on which page is currently active. An alternative approach is to have each
-                        // fragment expose actions itself (rather than the activity exposing actions),
-                        // but for simplicity, the activity provides the actions in this sample.
-                        // Toast.makeText(getApplicationContext(), "Page " + position, Toast.LENGTH_SHORT).show();
-                    }
-                });
                 mPager.setCurrentItem(1);
             }
             catch  (JSONException e) {
                 Toast.makeText(getApplicationContext(), "JSON parsing exception", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    /* Invoked upon reception of HTML data from GrassWire web site - creates slideable story page fragments, 1 per story */
+    private void build_screens_from_html(String html_str) {
+        PagerAdapter mPagerAdapter;
+
+        if (html_str != null) {
+            org.jsoup.nodes.Element body;
+            org.jsoup.nodes.Element main;
+            Elements element_list;
+
+            mHtmlResponse = Jsoup.parse(html_str);
+            body = mHtmlResponse.body();
+            element_list = body.getElementsByClass("content-container");
+            main = element_list.get(0);
+            mHtmlStories = main.getElementsByClass("story__list");
+            mNumPages = mHtmlStories.size();
+            Toast.makeText(getApplicationContext(), "Swipe right for more stories, left for Help",
+                    Toast.LENGTH_LONG).show();
+            setContentView(R.layout.activity_screen_slide);
+            mPager = (ViewPager) findViewById(R.id.pager);
+            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+            mPager.setAdapter(mPagerAdapter);
+            mPager.setCurrentItem(1);
         }
     }
 
@@ -122,16 +146,25 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            try {
-                if (position == 0) {
-                    return ScreenSlidePageFragment.create(position, mNumPages, mResponse);
-                }
-                else {
-                    return ScreenSlidePageFragment.create(position, mNumPages, mStories.getJSONObject(position - 1));
+            if (DOING_JSON) {
+                try {
+                    if (position == 0) {
+                        return ScreenSlidePageFragment.create(position, mNumPages, mJsonResponse);
+                    } else {
+                        return ScreenSlidePageFragment.create(position, mNumPages, mJsonStories.getJSONObject(position - 1));
+                    }
+                } catch (JSONException e) {
+                    return ScreenSlidePageFragment.create(position, mNumPages, "JSON parsing problem");
                 }
             }
-            catch  (JSONException e) {
-                return ScreenSlidePageFragment.create(position, mNumPages, "JSON parsing problem");
+            else {
+                if (position == 0) {
+                    return ScreenSlidePageFragment.create(position, mNumPages, mHtmlStories.get(0));
+                }
+                else {
+                    return ScreenSlidePageFragment.create(position, mNumPages, mHtmlStories.get(position - 1));
+                }
+
             }
         }
 
@@ -158,9 +191,13 @@ public class MainActivity extends FragmentActivity {
         }
 
         @Override
-        protected void onPostExecute(String json_result) {
-            //Toast.makeText(getApplicationContext(), "Starting to build screens from JSON data", Toast.LENGTH_SHORT).show();
-            build_screens(json_result);
+        protected void onPostExecute(String web_result) {
+            if (DOING_JSON) {
+                build_screens_from_json(web_result);
+            }
+            else {
+                build_screens_from_html(web_result);
+            }
         }
 
     }

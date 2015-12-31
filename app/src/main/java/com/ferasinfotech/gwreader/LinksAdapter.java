@@ -21,7 +21,10 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.nodes.Document;
 
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 /**
  * LinksAdapter class delivers "story link" related data for the ListView of associated links on
@@ -68,23 +71,37 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
 
     private Activity  mActivity;
     private Context   mContext;
-    private JSONArray mLinks;
+    private JSONArray mJsonLinks;
+    private Elements  mHtmlLinks;
     private static    LayoutInflater sInflator = null;
+    private static    boolean doing_json = true;
 
-    public LinksAdapter(Activity a, String json_story_string) {
+    public LinksAdapter(Activity a, String web_story_string) {
         JSONObject jsonObj = null;
+        Document   the_document = null;
+        Elements e_list;
+        org.jsoup.nodes.Element body;
 
         mActivity = a;
         mContext = mActivity.getApplicationContext();
         sInflator = (LayoutInflater) mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        try {
-            jsonObj = new JSONObject(json_story_string);
-            mLinks = jsonObj.getJSONArray(TAG_LINKS);
-            Log.d("JSON links", "Array length:" + mLinks.length());
+        if (web_story_string.startsWith("<")) {
+            doing_json = false;
+            the_document = Jsoup.parse(web_story_string);
+            body = the_document.body();
+            mHtmlLinks = body.getElementsByClass("story__item");
         }
-        catch (JSONException e) {
-            mLinks = null;
-            Log.d("JSON links", "JSON parse failed");
+        else {
+            doing_json = true;
+
+            try {
+                jsonObj = new JSONObject(web_story_string);
+                mJsonLinks = jsonObj.getJSONArray(TAG_LINKS);
+                Log.d("JSON links", "Array length:" + mJsonLinks.length());
+            } catch (JSONException e) {
+                mJsonLinks = null;
+                Log.d("JSON links", "JSON parse failed");
+            }
         }
     }
 
@@ -104,8 +121,15 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
         return true;
     }
 
-    public int getCount() {
-        return mLinks.length();
+    public int getCount()
+    {
+        if (doing_json) {
+            return mJsonLinks.length();
+        }
+        else {
+            int i = mHtmlLinks.size();
+            return i;
+        }
     }
 
     /********* Create a holder Class to contain inflated xml file elements *********/
@@ -147,7 +171,7 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
         Log.d("***DEBUG***", "JSON parse error on links");
     }
 
-    private void do_link_user_info(JSONObject link, ViewHolder holder, String link_kind) {
+    private void do_json_link_user_info(JSONObject link, ViewHolder holder, String link_kind) {
         String s;
         try {
             JSONObject user = link.getJSONObject(TAG_LINKUSER);
@@ -164,7 +188,7 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
 
     }
 
-    private void do_tweet_link(JSONObject link, ViewHolder holder) {
+    private void do_json_tweet_link(JSONObject link, ViewHolder holder) {
         String     s;
         String     tweet_id;
         JSONObject tw;
@@ -212,12 +236,12 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
         }
     }
 
-    private void do_linkdata_info(JSONObject link, ViewHolder holder, String kind) {
+    private void do_json_linkdata_info(JSONObject link, ViewHolder holder, String kind) {
         String s;
         try {
             Boolean no_image = true;
 
-            do_link_user_info(link, holder, kind);
+            do_json_link_user_info(link, holder, kind);
             JSONObject link_data = link.getJSONObject(TAG_LINKDATA);
             s = link_data.getString(TAG_LINKDATA_TITLE);
             holder.title.setText(s);
@@ -245,15 +269,130 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
         }
     }
 
-    private void do_plain_link(JSONObject link, ViewHolder holder) {
+    private void do_json_plain_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing plain link");
-        do_linkdata_info(link, holder, PLAIN_LINK);
+        do_json_linkdata_info(link, holder, PLAIN_LINK);
     }
 
-    private void do_video_link(JSONObject link, ViewHolder holder) {
+    private void do_json_video_link(JSONObject link, ViewHolder holder) {
         Log.d("***DEBUG***", "doing video link");
-        do_linkdata_info(link, holder, VIDEO_LINK);
+        do_json_linkdata_info(link, holder, VIDEO_LINK);
     }
+
+    private void do_json_link(int position, ViewHolder holder)
+    {
+        if (mJsonLinks.length() == 0) {
+            holder.title.setText("");
+            holder.description.setText("");
+        }
+        else {
+            String title = "Missing Title";
+            String description = "Missing Description";
+            try {
+                JSONObject link = mJsonLinks.getJSONObject(position);
+                String link_type = link.getString(TAG_LINK_TYPE);
+                if (link_type.contains("TweetLinkJsonModel")) {
+                    do_json_tweet_link(link, holder);
+                } else if (link_type.contains("PlainLinkJsonModel")) {
+                    do_json_plain_link(link, holder);
+                } else if (link_type.contains("VideoLinkJsonModel")) {
+                    do_json_video_link(link, holder);
+                }
+            } catch (JSONException e) {
+                handle_link_parse_exception(e);
+            }
+        }
+
+    }
+
+    private void do_html_link(int position, ViewHolder holder)
+    {
+        org.jsoup.nodes.Element link;
+        Elements e_list;
+        org.jsoup.nodes.Element tag;
+        String s;
+        Boolean no_image = true;
+
+        if (mHtmlLinks.size() == 0) {
+            holder.title.setText("");
+            holder.description.setText("");
+        }
+        else {
+            String title = "Missing Title";
+            String description = "Missing Description";
+
+            link = mHtmlLinks.get(position);
+            e_list = link.getElementsByClass("mediabox");
+            tag = e_list.get(0);
+
+            String link_type = tag.attr("data-type");
+            if (link_type.contains("tweet")) {
+                holder.link_type.setText(TWEET_LINK);
+            } else if (link_type.contains("link")) {
+                holder.link_type.setText(PLAIN_LINK);
+            } else if (link_type.contains("video")) {
+                holder.link_type.setText(VIDEO_LINK);
+                holder.play_icon.setText(PLAY_ICON);
+            }
+
+            e_list = link.getElementsByClass("mediabox__title");
+            if (e_list.size() > 0) {
+                tag = e_list.get(0);
+                s = tag.text();
+                holder.title.setText(s);
+            }
+
+            e_list = link.getElementsByClass("mediabox__description");
+            tag = e_list.get(0);
+            s = tag.text();
+            holder.description.setText(s);
+            if (link_type.contains("video")) {
+                e_list = link.getElementsByClass("mediabox__video-container");
+            }
+            else {
+                e_list = link.getElementsByClass("mediabox__visual--bigscreen");
+            }
+            if (e_list.size() > 0) {
+                tag = e_list.get(0);
+                tag = tag.child(0);
+                s = tag.attr("src");
+                if (s.length() > 0) {
+                    no_image = false;
+                    if ( (s.contains("youtube")) && (link_type.contains("video")) ) {
+                        String[] sa = s.split("/");
+                        int last = sa.length - 1;
+                        s = "https://i.ytimg.com/vi_webp/" + sa[last] + "/default.webp";
+                    }
+                    Picasso.with(mContext).load(s).into(holder.image);
+                }
+            }
+
+            if (no_image) {
+                ViewGroup.LayoutParams params = holder.image.getLayoutParams();
+                params.height = 0;
+            }
+
+            e_list = link.getElementsByClass("mediabox__username");
+            tag = e_list.get(0);
+            tag = tag.child(0);
+            s = tag.text();
+            holder.profile_name.setText(s);
+
+            e_list = link.getElementsByClass("mediabox__avatar");
+            tag = e_list.get(0);
+            tag = tag.child(0);
+            s = tag.attr("src");
+            Picasso.with(mContext).load(s).transform(new CircleTransform()).into(holder.profile_image);
+
+            e_list = link.getElementsByClass("mediabox__see-more");
+            tag = e_list.get(0);
+            tag = tag.child(0);
+            s = tag.attr("href");
+            holder.target_url = s;
+        }
+
+    }
+
 
     public View getView(int position, View convertView, ViewGroup parent) {
         View vi = convertView;
@@ -287,29 +426,11 @@ public class LinksAdapter extends BaseAdapter /* implements OnClickListener */ {
             holder = (ViewHolder) vi.getTag();
         }
 
-        if (mLinks.length() == 0) {
-            holder.title.setText("");
-            holder.description.setText("");
+        if (doing_json) {
+            do_json_link(position, holder);
         }
         else {
-            String title = "Missing Title";
-            String description = "Missing Description";
-            try {
-                JSONObject link = mLinks.getJSONObject(position);
-                String link_type = link.getString(TAG_LINK_TYPE);
-                if (link_type.contains("TweetLinkJsonModel")) {
-                    do_tweet_link(link, holder);
-                }
-                else if (link_type.contains("PlainLinkJsonModel")) {
-                    do_plain_link(link, holder);
-                }
-                else if (link_type.contains("VideoLinkJsonModel")) {
-                    do_video_link(link, holder);
-                }
-            }
-            catch (JSONException e) {
-                handle_link_parse_exception(e);
-            }
+            do_html_link(position, holder);
         }
         return vi;
     }
